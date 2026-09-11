@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Resources\UserResource;
 
 class AuthController extends Controller
 {
@@ -25,7 +26,7 @@ class AuthController extends Controller
          $token=$user->createToken("auth_tocken")->plainTextToken;
          return response()->json([
             "reponse"=>"create user with success",
-            "user"=>$user,
+            "user"=>new UserResource($user),
             "token"=>$token
          ]);
     }
@@ -41,7 +42,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json([
             'response' => 'Login successfully',
-            'user' => $user,
+            'user' => new UserResource($user),
             'token' => $token
         ]);
 
