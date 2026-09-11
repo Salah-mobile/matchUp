@@ -20,4 +20,7 @@ class Player extends Model
     public function teamAscaptain(){
         return $this->hasOne(Team::class,"captain");
     }
+    public function memberOfteam(){
+        return $this->hasOne(TeamMember::class);
+    }
 }
