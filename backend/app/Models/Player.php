@@ -23,4 +23,7 @@ class Player extends Model
     public function memberOfteam(){
         return $this->hasOne(TeamMember::class);
     }
+    public function invitations(){
+        return $this->hasMany(Invitation::class);
+    }
 }

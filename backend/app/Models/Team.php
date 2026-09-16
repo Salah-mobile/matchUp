@@ -19,4 +19,7 @@ class Team extends Model
     public function members(){
         return $this->hasMany(TeamMember::class);
     }
+    public function invitations(){
+        return $this->hasMany(Invitation::class);
+    }
 }
