@@ -22,6 +22,7 @@ function App(){
             <MyProfile/>
           </ProtectedRoute>
         }/>
+        
       </Routes>
     </BrowserRouter>
 }

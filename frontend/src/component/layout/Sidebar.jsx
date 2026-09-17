@@ -13,7 +13,7 @@ function SideBar({user}){
                     </div>
                     <nav className="flex-1 px-4 py-6">
                         <Link
-                            to="/dashboard"
+                            to="/Dashbord"
                             className="mb-2 flex items-center gap-3 rounded-xl bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-400"
                         >
                             Overview
