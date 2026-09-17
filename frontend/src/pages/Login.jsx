@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 
 function Login() {
@@ -8,12 +8,14 @@ function Login() {
     handleSubmit,
     formState: { errors },
   } = useForm();
+  const navigate=useNavigate()
 
   const onSubmit =  async (data) => {
     try {
         const reponse=await api.post("/login",data)
         localStorage.setItem("token",reponse.data.token)
         localStorage.setItem("user",JSON.stringify(reponse.data.user))
+        navigate('/Dashbord')
         console.log(reponse.data);
     } catch (error) {
         console.log(error);

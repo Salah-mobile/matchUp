@@ -1,8 +1,9 @@
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api.js";
 
 function Register() {
+  const navigate=useNavigate()
   const {
     register,
     handleSubmit,
@@ -14,6 +15,7 @@ function Register() {
        const reponse = await api.post("/register",data);
         localStorage.setItem("token",reponse.data.token)
         localStorage.setItem("user",JSON.stringify(reponse.data.user))
+        navigate('/Dashbord')
         console.log(reponse.data);
        
    } catch (error) {
