@@ -15,7 +15,7 @@ class PlayerPolicy
     {
         return false;
     }
-
+    
     /**
      * Determine whether the user can view the model.
      */

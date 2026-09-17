@@ -10,6 +10,7 @@ class Invitation extends Model
         'status',
         'team_id',
         'player_id',
+        'type',
         'send_at'
     ];
 

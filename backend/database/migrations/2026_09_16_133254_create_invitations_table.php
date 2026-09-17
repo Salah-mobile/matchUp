@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreignId('player_id')
                 ->constrained('players')
                 ->onDelete('cascade');
+            $table->string('type');
             $table->timestamp("send_at");
             $table->timestamps();
         });
