@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
+import api from "../services/api";
 
 function Login() {
   const {
@@ -8,8 +9,16 @@ function Login() {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit =  async (data) => {
+    try {
+        const reponse=await api.post("/login",data)
+        localStorage.setItem("token",reponse.data.token)
+        localStorage.setItem("user",JSON.stringify(reponse.data.user))
+        console.log(reponse.data);
+    } catch (error) {
+        console.log(error);
+    }
+     
   };
 
   return (
