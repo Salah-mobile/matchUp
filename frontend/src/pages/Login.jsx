@@ -15,9 +15,13 @@ function Login() {
         const reponse=await api.post("/login",data)
         localStorage.setItem("token",reponse.data.token)
         localStorage.setItem("user",JSON.stringify(reponse.data.user))
+        localStorage.setItem("player",JSON.stringify(reponse.data.player))
         navigate('/Dashbord')
         console.log(reponse.data);
     } catch (error) {
+        console.log("STATUS:", error.response?.status);
+        console.log("DATA:", error.response?.data);
+        console.log("ERROR:", error);
         console.log(error);
     }
      

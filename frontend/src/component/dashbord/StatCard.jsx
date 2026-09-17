@@ -1,5 +1,5 @@
 function StatCard(){
-        <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+    return  <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
                             <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
                                 <div className="flex items-center justify-between">
                                     <p className="text-sm text-slate-400">
@@ -30,15 +30,12 @@ function StatCard(){
                             <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
                                 <div className="flex items-center justify-between">
                                     <p className="text-sm text-slate-400">
-                                        Wins
+                                        Trust Worthy
                                     </p>
                                 </div>
                                 <h3 className="mt-4 text-3xl font-bold">
                                     0
                                 </h3>
-                                <p className="mt-2 text-xs text-slate-500">
-                                    Your victories
-                                </p>
                             </div>
                             <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
                                 <div className="flex items-center justify-between">

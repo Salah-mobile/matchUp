@@ -15,11 +15,14 @@ function Register() {
        const reponse = await api.post("/register",data);
         localStorage.setItem("token",reponse.data.token)
         localStorage.setItem("user",JSON.stringify(reponse.data.user))
+        localStorage.setItem("player",JSON.stringify(reponse.data.player))
         navigate('/Dashbord')
         console.log(reponse.data);
        
    } catch (error) {
-    console.log(error);
+     console.log(error);
+     console.log("ERROR:", error);
+     console.log("RESPONSE:", error.response?.data);
    }
   };
 
