@@ -14,9 +14,9 @@ class FootballMatchController extends Controller
     {
         $matches = FootballMatch::with([
             'place',
-            'team1',
-            'team2',
-            'winner'
+            'firstTeam',
+            'secondTeam',
+            'winningTeam'
         ])->get();
 
         return FootballMatchResource::collection($matches);
@@ -83,16 +83,16 @@ class FootballMatchController extends Controller
             'status' => 'open',
         ]);
 
+        $match->load([
+            'place',
+            'firstTeam',
+            'secondTeam',
+            'winningTeam'
+        ]);
+
         return response()->json([
             'message' => 'Match created successfully',
-            'match' => new FootballMatchResource(
-                $match->load(
-                    'place',
-                    'team1',
-                    'team2',
-                    'winner'
-                )
-            ),
+            'match' => new FootballMatchResource($match),
         ], 201);
     }
 
@@ -100,9 +100,9 @@ class FootballMatchController extends Controller
     {
         $match = FootballMatch::with([
             'place',
-            'team1',
-            'team2',
-            'winner'
+            'firstTeam',
+            'secondTeam',
+            'winningTeam'
         ])->findOrFail($id);
 
         return new FootballMatchResource($match);
@@ -165,16 +165,16 @@ class FootballMatchController extends Controller
             'place_id' => $request->place_id,
         ]);
 
+        $match->load([
+            'place',
+            'firstTeam',
+            'secondTeam',
+            'winningTeam'
+        ]);
+
         return response()->json([
             'message' => 'Match updated successfully',
-            'match' => new FootballMatchResource(
-                $match->load(
-                    'place',
-                    'team1',
-                    'team2',
-                    'winner'
-                )
-            ),
+            'match' => new FootballMatchResource($match),
         ]);
     }
 
@@ -239,9 +239,9 @@ class FootballMatchController extends Controller
 
         $matches = FootballMatch::with([
             'place',
-            'team1',
-            'team2',
-            'winner'
+            'firstTeam',
+            'secondTeam',
+            'winningTeam'
         ])
         ->where(function ($query) use ($teamId) {
             $query->where('team1', $teamId)

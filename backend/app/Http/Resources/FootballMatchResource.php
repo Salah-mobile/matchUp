@@ -11,11 +11,8 @@ class FootballMatchResource extends JsonResource
     {
         return [
             'id' => $this->id,
-
             'day' => $this->day,
-
             'time' => $this->time,
-
             'status' => $this->status,
 
             'place' => $this->place ? [
@@ -26,19 +23,19 @@ class FootballMatchResource extends JsonResource
                 'city' => $this->place->city,
             ] : null,
 
-            'team1' => $this->team1 ? [
-                'id' => $this->team1->id,
-                'name' => $this->team1->name,
+            'team1' => $this->firstTeam ? [
+                'id' => $this->firstTeam->id,
+                'name' => $this->firstTeam->name,
             ] : null,
 
-            'team2' => $this->team2 ? [
-                'id' => $this->team2->id,
-                'name' => $this->team2->name,
+            'team2' => $this->secondTeam ? [
+                'id' => $this->secondTeam->id,
+                'name' => $this->secondTeam->name,
             ] : null,
 
-            'winner' => $this->winner ? [
-                'id' => $this->winner->id,
-                'name' => $this->winner->name,
+            'winner' => $this->winningTeam ? [
+                'id' => $this->winningTeam->id,
+                'name' => $this->winningTeam->name,
             ] : null,
 
             'created_at' => $this->created_at,

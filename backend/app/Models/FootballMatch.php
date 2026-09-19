@@ -17,22 +17,23 @@ class FootballMatch extends Model
         'winner',
         'status',
     ];
+
     public function place()
     {
-        return $this->belongsTo(Place::class);
+        return $this->belongsTo(Place::class, 'place_id');
     }
 
-    public function team1()
+    public function firstTeam()
     {
         return $this->belongsTo(Team::class, 'team1');
     }
 
-    public function team2()
+    public function secondTeam()
     {
         return $this->belongsTo(Team::class, 'team2');
     }
 
-    public function winner()
+    public function winningTeam()
     {
         return $this->belongsTo(Team::class, 'winner');
     }
