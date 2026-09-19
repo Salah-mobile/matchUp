@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\InvitationController;
 use App\Http\Controllers\Api\PlayerController;
 use App\Http\Controllers\Api\TeamController;
+use App\Http\Controllers\Api\TeamMemberController;
 use App\Http\Controllers\Api\UserController;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\Request;
@@ -18,6 +19,7 @@ Route::middleware("auth:sanctum")->group(function(){
     Route::post('/logout',[AuthController::class,'logout'])->name("logout");
     Route::apiResource("players",PlayerController::class);
     Route::apiResource("teams",TeamController::class);
+    Route::apiResource("team-membres",TeamMemberController::class);
     Route::controller(InvitationController::class)->group(function(){
             Route::get('/invitations', 'index');
             Route::post('/invitations', 'store');

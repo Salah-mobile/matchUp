@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Team;
 use Illuminate\Http\Request;
 use App\Http\Resources\TeamResource;
+use App\Models\TeamMember;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class TeamController extends Controller
 {
@@ -24,23 +25,34 @@ class TeamController extends Controller
      */
     public function store(Request $request)
     {
-      $request->validate([
+        $request->validate([
             'name' => 'required|string',
             'description' => 'required|string',
             'logo' => 'required|string',
-            'classment' => 'required|integer',
-      ]);
-      $team=Team::create([
-        'name'=>$request->name,
-        'description'=>$request->description,
-        'logo'=>$request->logo,
-        'classment'=>$request->classment,
-        'captain'=>$request->user()->player->id,
-      ]);
-      return response()->json([
-        "message"=>"team create with success",
-        "team"=>new TeamResource($team),
-      ]);
+            'classment' => 'integer',
+        ]);
+
+        $playerId = $request->user()->player->id;
+
+        $team = Team::create([
+            'name' => $request->name,
+            'description' => $request->description,
+            'logo' => $request->logo,
+            'classment' =>0,
+            'captain' => $playerId,
+        ]);
+
+        TeamMember::create([
+            'team_id' => $team->id,
+            'player_id' => $playerId,
+            'joined_at' => now(),
+            'grade' => 'captain',
+        ]);
+
+        return response()->json([
+            'message' => 'team create with success',
+            'team' => new TeamResource($team),
+        ]);
     }
 
     /**
@@ -58,10 +70,10 @@ class TeamController extends Controller
     public function update(Request $request, string $id)
     {
         $validation=$request->validate([
-            'name' => 'required|string',
-            'description' => 'required|string',
-            'logo' => 'required|string',
-            'classment' => 'required|integer',
+            'name' => 'string',
+            'description' => 'string',
+            'logo' => 'string',
+            'classment' => 'integer',
         ]);
         $team=Team::findorFail($id);
         $this->authorize("update",$team);

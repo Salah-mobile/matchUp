@@ -45,6 +45,11 @@ class UserController extends Controller
         "password"=>"string|min:8"
        ]);
        $user->update($validation);
+       $player=Player::where("user_id",$user->id);
+       $validation=$request->validate([
+        "position"=>'string'
+       ]);
+       $player->update($validation);
        return response()->json([
         "message"=>"update with success",
         "user"=>$user

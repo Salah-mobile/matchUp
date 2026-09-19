@@ -6,26 +6,34 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('matchs', function (Blueprint $table) {
             $table->id();
-            $table->date("day");
-            $table->time("time");
-            $table->foreignId("place_id")->constrained("places")->onDelete("cascade");
-            $table->foreignId("team1")->constrained("teams")->onDelete('cascade');
-            $table->foreignId("team2")->constrained("teams")->onDelete('cascade');
-            $table->foreignId("winner")->constrained("teams")->onDelete('cascade');
+
+            $table->date('day');
+            $table->time('time');
+
+            $table->string('place');
+
+            $table->foreignId('team1')
+                ->constrained('teams')
+                ->cascadeOnDelete();
+
+            $table->foreignId('team2')
+                ->nullable()
+                ->constrained('teams')
+                ->nullOnDelete();
+
+            $table->foreignId('winner')
+                ->nullable()
+                ->constrained('teams')
+                ->nullOnDelete();
+
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('matchs');
