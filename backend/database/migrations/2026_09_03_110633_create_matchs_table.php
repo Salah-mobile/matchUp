@@ -13,7 +13,10 @@ return new class extends Migration
 
             $table->date('day');
             $table->time('time');
-            $table->string('place');
+
+            $table->foreignId('place_id')
+                ->constrained('places')
+                ->cascadeOnDelete();
 
             $table->foreignId('team1')
                 ->constrained('teams')

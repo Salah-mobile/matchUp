@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FootballMatchController;
 use App\Http\Controllers\Api\InvitationController;
+use App\Http\Controllers\Api\PlaceController;
 use App\Http\Controllers\Api\PlayerController;
 use App\Http\Controllers\Api\TeamController;
 use App\Http\Controllers\Api\TeamMemberController;
@@ -31,5 +32,6 @@ Route::middleware("auth:sanctum")->group(function(){
     Route::apiResource("users",UserController::class);
     Route::apiResource("FootballMatch",FootballMatchController::class);
     Route::get('/matchs/my-matches', [FootballMatchController::class, 'myMatches']);
+    Route::apiResource('/places',PlaceController::class);
 });
 

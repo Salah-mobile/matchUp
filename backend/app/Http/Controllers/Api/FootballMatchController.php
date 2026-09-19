@@ -13,6 +13,7 @@ class FootballMatchController extends Controller
     public function index()
     {
         $matches = FootballMatch::with([
+            'place',
             'team1',
             'team2',
             'winner'
@@ -26,7 +27,7 @@ class FootballMatchController extends Controller
         $request->validate([
             'day' => 'required|date',
             'time' => 'required',
-            'place' => 'required|string',
+            'place_id' => 'required|exists:places,id',
         ]);
 
         $player = $request->user()->player;
@@ -58,13 +59,13 @@ class FootballMatchController extends Controller
 
         if ($membersCount < 7) {
             return response()->json([
-                'message' => 'Your team must have at least 7 members to create a match'
+                'message' => "Your team has {$membersCount} members. You need at least 7 members to create a match."
             ], 422);
         }
 
         $existingMatch = FootballMatch::where('day', $request->day)
             ->where('time', $request->time)
-            ->where('place', $request->place)
+            ->where('place_id', $request->place_id)
             ->whereIn('status', ['open', 'full'])
             ->first();
 
@@ -77,7 +78,7 @@ class FootballMatchController extends Controller
         $match = FootballMatch::create([
             'day' => $request->day,
             'time' => $request->time,
-            'place' => $request->place,
+            'place_id' => $request->place_id,
             'team1' => $teamMember->team_id,
             'status' => 'open',
         ]);
@@ -85,7 +86,12 @@ class FootballMatchController extends Controller
         return response()->json([
             'message' => 'Match created successfully',
             'match' => new FootballMatchResource(
-                $match->load('team1', 'team2', 'winner')
+                $match->load(
+                    'place',
+                    'team1',
+                    'team2',
+                    'winner'
+                )
             ),
         ], 201);
     }
@@ -93,6 +99,7 @@ class FootballMatchController extends Controller
     public function show(string $id)
     {
         $match = FootballMatch::with([
+            'place',
             'team1',
             'team2',
             'winner'
@@ -108,7 +115,7 @@ class FootballMatchController extends Controller
         $request->validate([
             'day' => 'required|date',
             'time' => 'required',
-            'place' => 'required|string',
+            'place_id' => 'required|exists:places,id',
         ]);
 
         $player = $request->user()->player;
@@ -142,7 +149,7 @@ class FootballMatchController extends Controller
         $existingMatch = FootballMatch::where('id', '!=', $match->id)
             ->where('day', $request->day)
             ->where('time', $request->time)
-            ->where('place', $request->place)
+            ->where('place_id', $request->place_id)
             ->whereIn('status', ['open', 'full'])
             ->first();
 
@@ -155,13 +162,18 @@ class FootballMatchController extends Controller
         $match->update([
             'day' => $request->day,
             'time' => $request->time,
-            'place' => $request->place,
+            'place_id' => $request->place_id,
         ]);
 
         return response()->json([
             'message' => 'Match updated successfully',
             'match' => new FootballMatchResource(
-                $match->load('team1', 'team2', 'winner')
+                $match->load(
+                    'place',
+                    'team1',
+                    'team2',
+                    'winner'
+                )
             ),
         ]);
     }
@@ -204,6 +216,7 @@ class FootballMatchController extends Controller
             'message' => 'Match deleted successfully'
         ]);
     }
+
     public function myMatches(Request $request)
     {
         $player = $request->user()->player;
@@ -225,6 +238,7 @@ class FootballMatchController extends Controller
         $teamId = $teamMember->team_id;
 
         $matches = FootballMatch::with([
+            'place',
             'team1',
             'team2',
             'winner'

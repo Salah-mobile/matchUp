@@ -11,10 +11,20 @@ class FootballMatchResource extends JsonResource
     {
         return [
             'id' => $this->id,
+
             'day' => $this->day,
+
             'time' => $this->time,
-            'place' => $this->place,
+
             'status' => $this->status,
+
+            'place' => $this->place ? [
+                'id' => $this->place->id,
+                'name' => $this->place->name,
+                'price' => $this->place->price,
+                'adress' => $this->place->adress,
+                'city' => $this->place->city,
+            ] : null,
 
             'team1' => $this->team1 ? [
                 'id' => $this->team1->id,

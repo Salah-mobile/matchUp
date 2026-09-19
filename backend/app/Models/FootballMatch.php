@@ -11,12 +11,16 @@ class FootballMatch extends Model
     protected $fillable = [
         'day',
         'time',
-        'place',
+        'place_id',
         'team1',
         'team2',
         'winner',
         'status',
     ];
+    public function place()
+    {
+        return $this->belongsTo(Place::class);
+    }
 
     public function team1()
     {
