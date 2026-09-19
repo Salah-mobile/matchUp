@@ -25,7 +25,7 @@ function SideBar({user}){
                             My Profile
                         </Link>
                         <Link
-                            to="/team"
+                            to="/myteam"
                             className="mb-2 flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-400 transition hover:bg-slate-800 hover:text-white"
                         >
                             My Team

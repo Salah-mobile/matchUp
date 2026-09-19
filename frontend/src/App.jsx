@@ -1,11 +1,13 @@
 import{BrowserRouter,Routes,Route} from "react-router-dom";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
+import MyTeam from "./pages/Myteam";
 import Register from "./pages/Register";
 
 import ProtectedRoute from "./component/ProtectedRoute";
 import Dashbord from "./pages/Dashbord";
 import MyProfile from "./pages/Myprofile";
+import Matches from "./pages/Matches";
 function App(){
     return <BrowserRouter>
       <Routes>
@@ -22,8 +24,21 @@ function App(){
             <MyProfile/>
           </ProtectedRoute>
         }/>
-        
+        <Route path="/myteam" element={
+            <ProtectedRoute>
+              <MyTeam/>
+            </ProtectedRoute>
+        }/>
+        <Route
+        path="/matches"
+        element={
+          <ProtectedRoute>
+            <Matches/>
+          </ProtectedRoute>
+        }
+        />
       </Routes>
+      
     </BrowserRouter>
 }
 export default App;
