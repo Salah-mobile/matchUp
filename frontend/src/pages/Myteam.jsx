@@ -26,45 +26,57 @@ function MyTeam() {
 
 
     const loadData = async () => {
-        try {
-            setLoading(true);
+    try {
+        setLoading(true);
 
-            const teamsResponse = await api.get("/teams");
-            const membersResponse = await api.get("/team-membres");
+        const teamsResponse = await api.get("/teams");
+        const membersResponse = await api.get("/team-membres");
 
-            const allTeams = teamsResponse.data.data;
-            const allMembers = membersResponse.data.data;
+        const allTeams = teamsResponse.data.data;
+        const allMembers = membersResponse.data.data;
 
-            setTeams(allTeams);
+        console.log("PLAYER:", player);
+        console.log("ALL TEAMS:", allTeams);
+        console.log("ALL MEMBERS:", allMembers);
 
-            const myMembership = allMembers.find(
-                member => Number(member.player_id) === Number(player.id)
-            );
+        setTeams(allTeams);
 
-            if (!myMembership) {
-                setMyTeam(null);
-                setMembers([]);
-                return;
-            }
+        const myMembership = allMembers.find(
+            member => Number(member.player_id) === Number(player.id)
+        );
 
-            const team = allTeams.find(
-                team => Number(team.id) === Number(myMembership.team_id)
-            );
+        console.log("MY MEMBERSHIP:", myMembership);
 
-            const myMembers = allMembers.filter(
-                member => Number(member.team_id) === Number(myMembership.team_id)
-            );
-
-            setMyTeam(team);
-            setMembers(myMembers);
-
-        } catch (error) {
-            console.log(error.response?.data || error);
-            setMessage("Unable to load team information");
-        } finally {
-            setLoading(false);
+        if (!myMembership) {
+            setMyTeam(null);
+            setMembers([]);
+            return;
         }
-    };
+
+        const team = allTeams.find(
+            team => Number(team.id) === Number(myMembership.team_id)
+        );
+
+        console.log("MY TEAM:", team);
+
+        const myMembers = allMembers.filter(
+            member =>
+                Number(member.team_id) ===
+                Number(myMembership.team_id)
+        );
+
+        console.log("MY MEMBERS:", myMembers);
+
+        setMyTeam(team);
+        setMembers(myMembers);
+
+    } catch (error) {
+        console.log(error.response?.data || error);
+        setMessage("Unable to load team information");
+    } finally {
+        setLoading(false);
+    }
+};
 
     const requestToJoin = async teamId => {
         try {

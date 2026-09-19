@@ -41,7 +41,7 @@ function CreateMatch() {
         setLoading(true);
 
         try {
-            const response = await api.post("/matchs", {
+            const response = await api.post("/FootballMatch", {
                 day,
                 time,
                 place_id: placeId,

@@ -37,7 +37,7 @@ class FootballMatchResource extends JsonResource
                 'id' => $this->winningTeam->id,
                 'name' => $this->winningTeam->name,
             ] : null,
-
+            
             'created_at' => $this->created_at,
         ];
     }
