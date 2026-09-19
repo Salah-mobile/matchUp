@@ -13,7 +13,6 @@ return new class extends Migration
 
             $table->date('day');
             $table->time('time');
-
             $table->string('place');
 
             $table->foreignId('team1')
@@ -29,6 +28,13 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('teams')
                 ->nullOnDelete();
+
+            $table->enum('status', [
+                'open',
+                'full',
+                'finished',
+                'cancelled'
+            ])->default('open');
 
             $table->timestamps();
         });

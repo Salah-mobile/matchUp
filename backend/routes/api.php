@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\FootballMatchController;
 use App\Http\Controllers\Api\InvitationController;
 use App\Http\Controllers\Api\PlayerController;
 use App\Http\Controllers\Api\TeamController;
@@ -28,6 +29,6 @@ Route::middleware("auth:sanctum")->group(function(){
             Route::post('/invitations/{invitation}/reject', 'reject');
     });
     Route::apiResource("users",UserController::class);
-    Route::apiResource("FootballMatch",FootballMatch::class);
+    Route::apiResource("FootballMatch",FootballMatchController::class);
 });
 

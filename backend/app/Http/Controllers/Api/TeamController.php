@@ -19,17 +19,16 @@ class TeamController extends Controller
      $teams=Team::all();
      return TeamResource::collection($teams);
     }
-
+    
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+   public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string',
             'description' => 'required|string',
             'logo' => 'required|string',
-            'classment' => 'integer',
         ]);
 
         $playerId = $request->user()->player->id;
@@ -38,7 +37,7 @@ class TeamController extends Controller
             'name' => $request->name,
             'description' => $request->description,
             'logo' => $request->logo,
-            'classment' =>0,
+            'classment' => 0,
             'captain' => $playerId,
         ]);
 

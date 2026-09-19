@@ -14,6 +14,7 @@ class FootballMatchResource extends JsonResource
             'day' => $this->day,
             'time' => $this->time,
             'place' => $this->place,
+            'status' => $this->status,
 
             'team1' => $this->team1 ? [
                 'id' => $this->team1->id,

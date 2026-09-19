@@ -15,6 +15,7 @@ class FootballMatch extends Model
         'team1',
         'team2',
         'winner',
+        'status',
     ];
 
     public function team1()
