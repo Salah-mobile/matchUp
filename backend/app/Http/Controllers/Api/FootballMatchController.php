@@ -204,4 +204,38 @@ class FootballMatchController extends Controller
             'message' => 'Match deleted successfully'
         ]);
     }
+    public function myMatches(Request $request)
+    {
+        $player = $request->user()->player;
+
+        if (!$player) {
+            return response()->json([
+                'message' => 'Player not found'
+            ], 404);
+        }
+
+        $teamMember = $player->memberOfteam;
+
+        if (!$teamMember) {
+            return response()->json([
+                'message' => 'You are not a member of a team'
+            ], 422);
+        }
+
+        $teamId = $teamMember->team_id;
+
+        $matches = FootballMatch::with([
+            'team1',
+            'team2',
+            'winner'
+        ])
+        ->where(function ($query) use ($teamId) {
+            $query->where('team1', $teamId)
+                ->orWhere('team2', $teamId);
+        })
+        ->latest()
+        ->get();
+
+        return FootballMatchResource::collection($matches);
+    }
 }

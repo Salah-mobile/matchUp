@@ -30,5 +30,6 @@ Route::middleware("auth:sanctum")->group(function(){
     });
     Route::apiResource("users",UserController::class);
     Route::apiResource("FootballMatch",FootballMatchController::class);
+    Route::get('/matchs/my-matches', [FootballMatchController::class, 'myMatches']);
 });
 
