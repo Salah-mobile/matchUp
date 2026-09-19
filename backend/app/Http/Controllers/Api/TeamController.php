@@ -19,11 +19,11 @@ class TeamController extends Controller
      $teams=Team::all();
      return TeamResource::collection($teams);
     }
-    
+
     /**
      * Store a newly created resource in storage.
      */
-   public function store(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string',
@@ -31,28 +31,42 @@ class TeamController extends Controller
             'logo' => 'required|string',
         ]);
 
-        $playerId = $request->user()->player->id;
+        $player = $request->user()->player;
+
+        if (!$player) {
+            return response()->json([
+                'message' => 'Player not found'
+            ], 404);
+        }
+
+        if ($player->memberOfteam) {
+            return response()->json([
+                'message' => 'You are already a member of a team'
+            ], 422);
+        }
 
         $team = Team::create([
             'name' => $request->name,
             'description' => $request->description,
             'logo' => $request->logo,
             'classment' => 0,
-            'captain' => $playerId,
+            'captain' => $player->id,
         ]);
 
         TeamMember::create([
             'team_id' => $team->id,
-            'player_id' => $playerId,
+            'player_id' => $player->id,
             'joined_at' => now(),
             'grade' => 'captain',
         ]);
 
         return response()->json([
-            'message' => 'team create with success',
+            'message' => 'Team created successfully',
             'team' => new TeamResource($team),
-        ]);
+        ], 201);
     }
+
+
 
     /**
      * Display the specified resource.
