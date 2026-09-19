@@ -10,6 +10,7 @@ use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Resources\UserResource;
+use App\Models\FootballMatch;
 
 Route::controller(AuthController::class)->group(function(){
      Route::post("/register","register")->name("register");
@@ -27,5 +28,6 @@ Route::middleware("auth:sanctum")->group(function(){
             Route::post('/invitations/{invitation}/reject', 'reject');
     });
     Route::apiResource("users",UserController::class);
+    Route::apiResource("FootballMatch",FootballMatch::class);
 });
 
