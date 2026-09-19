@@ -8,6 +8,8 @@ import ProtectedRoute from "./component/ProtectedRoute";
 import Dashbord from "./pages/Dashbord";
 import MyProfile from "./pages/Myprofile";
 import Matches from "./pages/Matches";
+import MyMatchs from "./pages/MyMatchs";
+import CreateMatch from "./pages/CreateMatche";
 function App(){
     return <BrowserRouter>
       <Routes>
@@ -37,6 +39,18 @@ function App(){
           </ProtectedRoute>
         }
         />
+      <Route path="/my-matches" element={
+      <ProtectedRoute>
+        <MyMatchs/>
+      </ProtectedRoute>
+      }/>
+      <Route path="/Create-Match"
+        element={
+          <ProtectedRoute>
+            <CreateMatch/>
+          </ProtectedRoute>
+        }
+      />
       </Routes>
       
     </BrowserRouter>

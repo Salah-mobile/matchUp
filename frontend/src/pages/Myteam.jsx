@@ -24,6 +24,7 @@ function MyTeam() {
         loadData();
     }, []);
 
+
     const loadData = async () => {
         try {
             setLoading(true);
@@ -37,27 +38,26 @@ function MyTeam() {
             setTeams(allTeams);
 
             const myMembership = allMembers.find(
-                item => Number(item.player_id) === Number(player?.id)
+                member => Number(member.player_id) === Number(player.id)
             );
 
-            if (myMembership) {
-                const team = allTeams.find(
-                    item => Number(item.id) === Number(myMembership.team_id)
-                );
-
-                setMyTeam(team);
-
-                const myMembers = allMembers.filter(
-                    item =>
-                        Number(item.team_id) ===
-                        Number(myMembership.team_id)
-                );
-
-                setMembers(myMembers);
-            } else {
+            if (!myMembership) {
                 setMyTeam(null);
                 setMembers([]);
+                return;
             }
+
+            const team = allTeams.find(
+                team => Number(team.id) === Number(myMembership.team_id)
+            );
+
+            const myMembers = allMembers.filter(
+                member => Number(member.team_id) === Number(myMembership.team_id)
+            );
+
+            setMyTeam(team);
+            setMembers(myMembers);
+
         } catch (error) {
             console.log(error.response?.data || error);
             setMessage("Unable to load team information");
