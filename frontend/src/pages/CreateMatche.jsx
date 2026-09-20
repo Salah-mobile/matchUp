@@ -1,19 +1,21 @@
 import { useEffect, useState } from "react";
-import SideBar from "../component/layout/Sidebar.jsx";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import api from "../services/api.js";
 
 function CreateMatch() {
-    const [day, setDay] = useState("");
-    const [time, setTime] = useState("");
-    const [placeId, setPlaceId] = useState("");
+    const navigate = useNavigate();
 
     const [places, setPlaces] = useState([]);
-
-    const [loading, setLoading] = useState(false);
-    const [loadingPlaces, setLoadingPlaces] = useState(true);
-
+    const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting }
+    } = useForm();
 
     useEffect(() => {
         loadPlaces();
@@ -23,187 +25,227 @@ function CreateMatch() {
         try {
             const response = await api.get("/places");
 
-            setPlaces(response.data.data);
-        } catch (error) {
-            console.log(error.response?.data || error);
-
-            setError("Unable to load places");
-        } finally {
-            setLoadingPlaces(false);
-        }
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        setMessage("");
-        setError("");
-        setLoading(true);
-
-        try {
-            const response = await api.post("/FootballMatch", {
-                day,
-                time,
-                place_id: placeId,
-            });
-
-            setMessage(response.data.message);
-
-            setDay("");
-            setTime("");
-            setPlaceId("");
+            setPlaces(response.data.data || []);
         } catch (error) {
             console.log(error.response?.data || error);
 
             setError(
                 error.response?.data?.message ||
-                "Unable to create match"
+                "Unable to load places"
             );
         } finally {
             setLoading(false);
         }
     };
 
+    const createMatch = async (data) => {
+        setMessage("");
+        setError("");
+
+        try {
+            const response = await api.post("/matchs", {
+                day: data.day,
+                time: data.time,
+                place_id: data.place_id
+            });
+
+            setMessage(
+                response.data.message ||
+                "Match created successfully"
+            );
+
+            setTimeout(() => {
+                navigate("/matches");
+            }, 1000);
+
+        } catch (error) {
+            console.log(error.response?.data || error);
+
+            if (error.response?.data?.errors) {
+                const validationErrors =
+                    Object.values(error.response.data.errors)
+                        .flat()
+                        .join(" ");
+
+                setError(validationErrors);
+            } else {
+                setError(
+                    error.response?.data?.message ||
+                    "Unable to create match"
+                );
+            }
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+                Loading places...
+            </div>
+        );
+    }
+
     return (
-        <div className="flex min-h-screen bg-slate-950">
-            <SideBar />
+        <div className="min-h-screen bg-slate-950 text-white p-6">
 
-            <main className="min-w-0 flex-1 p-6">
-                <div className="mx-auto max-w-3xl">
+            <div className="max-w-3xl mx-auto">
 
-                    <div className="mb-8">
-                        <h1 className="text-3xl font-bold text-white">
-                            Create Match
-                        </h1>
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold">
+                        Create Match
+                    </h1>
 
-                        <p className="mt-2 text-slate-400">
-                            Create a new football match for your team
-                        </p>
+                    <p className="text-slate-400 mt-2">
+                        Choose the date, time and football place.
+                    </p>
+                </div>
+
+                {message && (
+                    <div className="mb-6 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-4 py-3">
+                        {message}
+                    </div>
+                )}
+
+                {error && (
+                    <div className="mb-6 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3">
+                        {error}
+                    </div>
+                )}
+
+                <form
+                    onSubmit={handleSubmit(createMatch)}
+                    className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6"
+                >
+
+                    <div>
+                        <label className="block text-sm font-medium mb-2">
+                            Match date
+                        </label>
+
+                        <input
+                            type="date"
+                            {...register("day", {
+                                required: "Date is required"
+                            })}
+                            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white outline-none focus:border-emerald-500"
+                        />
+
+                        {errors.day && (
+                            <p className="text-red-400 text-sm mt-2">
+                                {errors.day.message}
+                            </p>
+                        )}
                     </div>
 
-                    {message && (
-                        <div className="mb-6 rounded-xl border border-emerald-900 bg-emerald-950/30 px-5 py-4 text-emerald-400">
-                            {message}
-                        </div>
-                    )}
+                    <div>
+                        <label className="block text-sm font-medium mb-2">
+                            Match time
+                        </label>
 
-                    {error && (
-                        <div className="mb-6 rounded-xl border border-red-900 bg-red-950/30 px-5 py-4 text-red-400">
-                            {error}
-                        </div>
-                    )}
+                        <input
+                            type="time"
+                            {...register("time", {
+                                required: "Time is required"
+                            })}
+                            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white outline-none focus:border-emerald-500"
+                        />
 
-                    <form
-                        onSubmit={handleSubmit}
-                        className="space-y-6 rounded-2xl border border-slate-800 bg-slate-900 p-6"
-                    >
-
-                        <div>
-                            <label className="mb-2 block text-sm font-medium text-slate-300">
-                                Date
-                            </label>
-
-                            <input
-                                type="date"
-                                value={day}
-                                onChange={(e) => setDay(e.target.value)}
-                                required
-                                className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-white outline-none focus:border-emerald-500"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="mb-2 block text-sm font-medium text-slate-300">
-                                Time
-                            </label>
-
-                            <input
-                                type="time"
-                                value={time}
-                                onChange={(e) => setTime(e.target.value)}
-                                required
-                                className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-white outline-none focus:border-emerald-500"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="mb-2 block text-sm font-medium text-slate-300">
-                                Football Place
-                            </label>
-
-                            {loadingPlaces ? (
-                                <div className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-slate-400">
-                                    Loading places...
-                                </div>
-                            ) : (
-                                <select
-                                    value={placeId}
-                                    onChange={(e) => setPlaceId(e.target.value)}
-                                    required
-                                    className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-white outline-none focus:border-emerald-500"
-                                >
-                                    <option value="">
-                                        Select a place
-                                    </option>
-
-                                    {places.map((place) => (
-                                        <option
-                                            key={place.id}
-                                            value={place.id}
-                                        >
-                                            {place.name} - {place.city} - {place.price} DH
-                                        </option>
-                                    ))}
-                                </select>
-                            )}
-                        </div>
-
-                        {placeId && (
-                            <div className="rounded-xl border border-slate-800 bg-slate-950 p-5">
-                                {(() => {
-                                    const selectedPlace = places.find(
-                                        (place) =>
-                                            Number(place.id) === Number(placeId)
-                                    );
-
-                                    if (!selectedPlace) {
-                                        return null;
-                                    }
-
-                                    return (
-                                        <>
-                                            <h3 className="font-bold text-white">
-                                                {selectedPlace.name}
-                                            </h3>
-
-                                            <p className="mt-2 text-sm text-slate-400">
-                                                📍 {selectedPlace.adress}
-                                            </p>
-
-                                            <p className="mt-1 text-sm text-slate-400">
-                                                🏙️ {selectedPlace.city}
-                                            </p>
-
-                                            <p className="mt-1 text-sm text-emerald-400">
-                                                💰 {selectedPlace.price} DH
-                                            </p>
-                                        </>
-                                    );
-                                })()}
-                            </div>
+                        {errors.time && (
+                            <p className="text-red-400 text-sm mt-2">
+                                {errors.time.message}
+                            </p>
                         )}
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium mb-2">
+                            Football place
+                        </label>
+
+                        <select
+                            {...register("place_id", {
+                                required: "Please select a place"
+                            })}
+                            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white outline-none focus:border-emerald-500"
+                        >
+                            <option value="">
+                                Select a place
+                            </option>
+
+                            {places.map((place) => (
+                                <option
+                                    key={place.id}
+                                    value={place.id}
+                                >
+                                    {place.name} - {place.city} - {place.price} DH
+                                </option>
+                            ))}
+                        </select>
+
+                        {errors.place_id && (
+                            <p className="text-red-400 text-sm mt-2">
+                                {errors.place_id.message}
+                            </p>
+                        )}
+                    </div>
+
+                    {places.length > 0 && (
+                        <div className="space-y-3">
+                            <h2 className="text-lg font-semibold">
+                                Available places
+                            </h2>
+
+                            <div className="grid gap-3">
+                                {places.map((place) => (
+                                    <div
+                                        key={place.id}
+                                        className="bg-slate-800 rounded-xl p-4 border border-slate-700"
+                                    >
+                                        <div className="flex justify-between items-center">
+                                            <div>
+                                                <h3 className="font-semibold">
+                                                    {place.name}
+                                                </h3>
+
+                                                <p className="text-sm text-slate-400">
+                                                    {place.adress}, {place.city}
+                                                </p>
+                                            </div>
+
+                                            <span className="text-emerald-400 font-semibold">
+                                                {place.price} DH
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="flex gap-3 pt-4">
+
+                        <button
+                            type="button"
+                            onClick={() => navigate("/matches")}
+                            className="flex-1 bg-slate-800 hover:bg-slate-700 rounded-lg px-4 py-3 font-medium transition"
+                        >
+                            Cancel
+                        </button>
 
                         <button
                             type="submit"
-                            disabled={loading}
-                            className="w-full rounded-xl bg-emerald-500 px-4 py-3 font-bold text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-50"
+                            disabled={isSubmitting}
+                            className="flex-1 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 rounded-lg px-4 py-3 font-semibold transition"
                         >
-                            {loading ? "Creating..." : "Create Match"}
+                            {isSubmitting
+                                ? "Creating..."
+                                : "Create Match"}
                         </button>
 
-                    </form>
-                </div>
-            </main>
+                    </div>
+
+                </form>
+            </div>
         </div>
     );
 }
