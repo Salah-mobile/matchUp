@@ -37,4 +37,9 @@ class FootballMatch extends Model
     {
         return $this->belongsTo(Team::class, 'winner');
     }
+
+    public function players()
+    {
+        return $this->hasMany(MatchPlayer::class, 'match_id');
+    }
 }
