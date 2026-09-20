@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import SideBar from "../component/layout/Sidebar.jsx";
 import api from "../services/api.js";
 
 function MyMatchs() {
+    const navigate = useNavigate();
+
     const [matches, setMatches] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
@@ -31,23 +34,18 @@ function MyMatchs() {
     }, []);
 
     const getResult = (match) => {
+
         if (match.status !== "finished") {
             return "upcoming";
         }
 
-        const player = JSON.parse(
-            localStorage.getItem("player") || "null"
-        );
-
-        const myTeamId = player?.team_id;
-
-        if (!myTeamId || !match.winner) {
+        if (!match.winner) {
             return "draw";
         }
 
         if (
             Number(match.winner.id) ===
-            Number(myTeamId)
+            Number(match.my_team_id)
         ) {
             return "win";
         }
@@ -74,6 +72,7 @@ function MyMatchs() {
     if (loading) {
         return (
             <div className="flex min-h-screen bg-slate-950">
+
                 <SideBar />
 
                 <main className="flex flex-1 items-center justify-center">
@@ -81,25 +80,30 @@ function MyMatchs() {
                         Loading matches...
                     </p>
                 </main>
+
             </div>
         );
     }
 
     return (
         <div className="flex min-h-screen bg-slate-950">
+
             <SideBar />
 
             <main className="min-w-0 flex-1 p-6">
-                <section className="w-full space-y-6">
+
+                <section className="mx-auto w-full max-w-7xl space-y-6">
 
                     <div>
+
                         <h1 className="text-3xl font-bold text-white">
                             My Matches
                         </h1>
 
                         <p className="mt-2 text-slate-400">
-                            Track your team's matches and results
+                            Track the matches you joined and their results
                         </p>
+
                     </div>
 
                     {message && (
@@ -111,6 +115,7 @@ function MyMatchs() {
                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
 
                         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+
                             <p className="text-sm text-slate-400">
                                 Matches Played
                             </p>
@@ -118,9 +123,11 @@ function MyMatchs() {
                             <p className="mt-3 text-3xl font-bold text-white">
                                 {total}
                             </p>
+
                         </div>
 
                         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+
                             <p className="text-sm text-slate-400">
                                 Wins
                             </p>
@@ -128,9 +135,11 @@ function MyMatchs() {
                             <p className="mt-3 text-3xl font-bold text-emerald-400">
                                 {wins}
                             </p>
+
                         </div>
 
                         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+
                             <p className="text-sm text-slate-400">
                                 Losses
                             </p>
@@ -138,9 +147,11 @@ function MyMatchs() {
                             <p className="mt-3 text-3xl font-bold text-red-400">
                                 {losses}
                             </p>
+
                         </div>
 
                         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+
                             <p className="text-sm text-slate-400">
                                 Draws
                             </p>
@@ -148,6 +159,7 @@ function MyMatchs() {
                             <p className="mt-3 text-3xl font-bold text-yellow-400">
                                 {draws}
                             </p>
+
                         </div>
 
                     </div>
@@ -155,21 +167,27 @@ function MyMatchs() {
                     <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 sm:p-8">
 
                         <div className="mb-6">
+
                             <h2 className="text-xl font-bold text-white">
                                 Match History
                             </h2>
 
                             <p className="mt-1 text-sm text-slate-500">
-                                Your team's previous and upcoming matches
+                                Matches you joined
                             </p>
+
                         </div>
 
                         {matches.length === 0 ? (
+
                             <div className="py-12 text-center">
+
                                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10">
+
                                     <span className="text-2xl">
                                         ⚽
                                     </span>
+
                                 </div>
 
                                 <h3 className="text-lg font-bold text-white">
@@ -177,14 +195,19 @@ function MyMatchs() {
                                 </h3>
 
                                 <p className="mt-2 text-sm text-slate-500">
-                                    Your team has not played any matches yet.
+                                    You have not joined any matches yet.
                                 </p>
+
                             </div>
+
                         ) : (
+
                             <div className="space-y-4">
 
                                 {matches.map(match => {
-                                    const result = getResult(match);
+
+                                    const result =
+                                        getResult(match);
 
                                     return (
                                         <div
@@ -197,6 +220,7 @@ function MyMatchs() {
                                                 <div>
 
                                                     <div className="flex items-center gap-3">
+
                                                         <span className="rounded-lg bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-300">
                                                             Match #{match.id}
                                                         </span>
@@ -204,6 +228,7 @@ function MyMatchs() {
                                                         <span className="text-sm text-slate-500">
                                                             {match.day}
                                                         </span>
+
                                                     </div>
 
                                                     <div className="mt-4 flex items-center gap-4">
@@ -217,7 +242,7 @@ function MyMatchs() {
                                                         </span>
 
                                                         <span className="font-bold text-white">
-                                                            {match.team2?.name || "Waiting for opponent"}
+                                                            {match.team2?.name || "Waiting"}
                                                         </span>
 
                                                     </div>
@@ -233,14 +258,14 @@ function MyMatchs() {
                                                         </span>
 
                                                         <span>
-                                                            📍 {match.place?.city || "-"}
+                                                            {match.place?.city || "-"}
                                                         </span>
 
                                                     </div>
 
                                                 </div>
 
-                                                <div className="flex items-center gap-3">
+                                                <div className="flex flex-wrap items-center gap-3">
 
                                                     {result === "win" && (
                                                         <span className="rounded-lg bg-emerald-500/10 px-4 py-2 text-sm font-bold text-emerald-400">
@@ -268,6 +293,17 @@ function MyMatchs() {
                                                         </span>
                                                     )}
 
+                                                    <button
+                                                        onClick={() =>
+                                                            navigate(
+                                                                `/matches/${match.id}`
+                                                            )
+                                                        }
+                                                        className="rounded-lg bg-slate-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-600"
+                                                    >
+                                                        View Match
+                                                    </button>
+
                                                 </div>
 
                                             </div>
@@ -277,12 +313,15 @@ function MyMatchs() {
                                 })}
 
                             </div>
+
                         )}
 
                     </div>
 
                 </section>
+
             </main>
+
         </div>
     );
 }

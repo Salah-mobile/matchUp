@@ -7,20 +7,19 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class PlayerResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
         return [
-            "id"=>$this->id,
-            "position"=>$this->position,
-            "level"=>$this->level,
-            "points"=>$this->points,
-            "trustworthy"=>$this->trustworthy,
-            "user_id"=>$this->user_id
+            'id' => $this->id,
+            'position' => $this->position,
+            'level' => $this->level,
+            'points' => $this->points,
+            'trustworthy' => $this->trustworthy,
+            'user_id' => $this->user_id,
+
+            'team_id' => $this->memberOfteam?->team_id,
+
+            'grade' => $this->memberOfteam?->grade,
         ];
     }
 }

@@ -10,6 +10,7 @@ import MyProfile from "./pages/Myprofile";
 import Matches from "./pages/Matches";
 import MyMatchs from "./pages/MyMatchs";
 import CreateMatch from "./pages/CreateMatche";
+import MatchDetails from "./pages/MatchDeatils";
 function App(){
     return <BrowserRouter>
       <Routes>
@@ -39,6 +40,11 @@ function App(){
           </ProtectedRoute>
         }
         />
+        <Route path="/matches/:id" element={
+           <ProtectedRoute>
+            <MatchDetails />
+        </ProtectedRoute>
+        }/>
       <Route path="/my-matches" element={
       <ProtectedRoute>
         <MyMatchs/>
