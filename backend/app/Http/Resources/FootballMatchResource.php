@@ -37,7 +37,20 @@ class FootballMatchResource extends JsonResource
                 'id' => $this->winningTeam->id,
                 'name' => $this->winningTeam->name,
             ] : null,
-            
+
+            'players' => $this->players->map(function ($matchPlayer) {
+                return [
+                    'id' => $matchPlayer->id,
+                    'player_id' => $matchPlayer->player_id,
+                    'team_id' => $matchPlayer->team_id,
+                    'player' => $matchPlayer->player ? [
+                        'id' => $matchPlayer->player->id,
+                        'name' => $matchPlayer->player->user->name ?? null,
+                        'lastname' => $matchPlayer->player->user->lastname ?? null,
+                    ] : null,
+                ];
+            }),
+
             'created_at' => $this->created_at,
         ];
     }

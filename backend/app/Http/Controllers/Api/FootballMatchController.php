@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\FootballMatchResource;
 use App\Models\FootballMatch;
 use App\Models\TeamMember;
+use App\Models\MatchPlayer;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class FootballMatchController extends Controller
@@ -16,7 +18,9 @@ class FootballMatchController extends Controller
             'place',
             'firstTeam',
             'secondTeam',
-            'winningTeam'
+            'winningTeam',
+            'players.player',
+            'players.team'
         ])->get();
 
         return FootballMatchResource::collection($matches);
@@ -63,16 +67,35 @@ class FootballMatchController extends Controller
             ], 422);
         }
 
-        $existingMatch = FootballMatch::where('day', $request->day)
-            ->where('time', $request->time)
-            ->where('place_id', $request->place_id)
-            ->whereIn('status', ['open', 'full'])
-            ->first();
+        $requestedDateTime = Carbon::parse(
+            $request->day . ' ' . $request->time
+        );
 
-        if ($existingMatch) {
-            return response()->json([
-                'message' => 'This place is already reserved at this date and time'
-            ], 422);
+        $existingMatches = FootballMatch::where(
+            'place_id',
+            $request->place_id
+        )
+        ->whereIn('status', ['open', 'full'])
+        ->get();
+
+        foreach ($existingMatches as $existingMatch) {
+
+            $existingDateTime = Carbon::parse(
+                $existingMatch->day . ' ' . $existingMatch->time
+            );
+
+            $difference = abs(
+                $requestedDateTime->diffInMinutes(
+                    $existingDateTime,
+                    false
+                )
+            );
+
+            if ($difference <= 60) {
+                return response()->json([
+                    'message' => 'This place is already reserved within one hour of this time.'
+                ], 422);
+            }
         }
 
         $match = FootballMatch::create([
@@ -87,7 +110,9 @@ class FootballMatchController extends Controller
             'place',
             'firstTeam',
             'secondTeam',
-            'winningTeam'
+            'winningTeam',
+            'players.player',
+            'players.team'
         ]);
 
         return response()->json([
@@ -102,10 +127,183 @@ class FootballMatchController extends Controller
             'place',
             'firstTeam',
             'secondTeam',
-            'winningTeam'
+            'winningTeam',
+            'players.player',
+            'players.team'
         ])->findOrFail($id);
 
         return new FootballMatchResource($match);
+    }
+
+    public function join(Request $request, string $id)
+    {
+        $match = FootballMatch::findOrFail($id);
+
+        if ($match->status !== 'open') {
+            return response()->json([
+                'message' => 'This match is not available for joining.'
+            ], 422);
+        }
+
+        $player = $request->user()->player;
+
+        if (!$player) {
+            return response()->json([
+                'message' => 'Player not found'
+            ], 404);
+        }
+
+        $teamMember = $player->memberOfteam;
+
+        if (!$teamMember) {
+            return response()->json([
+                'message' => 'You must be a member of a team.'
+            ], 422);
+        }
+
+        $teamId = $teamMember->team_id;
+
+        if ($teamId == $match->team1) {
+            return response()->json([
+                'message' => 'Your team already created this match.'
+            ], 422);
+        }
+
+        $teamMembersCount = TeamMember::where(
+            'team_id',
+            $teamId
+        )->count();
+
+        if ($teamMembersCount < 7) {
+            return response()->json([
+                'message' => 'Your team must have at least 7 members.'
+            ], 422);
+        }
+
+        if ($match->team2 !== null) {
+            return response()->json([
+                'message' => 'Another team already joined this match.'
+            ], 422);
+        }
+
+        $match->update([
+            'team2' => $teamId,
+        ]);
+
+        return response()->json([
+            'message' => 'Your team joined the match successfully.',
+            'match' => new FootballMatchResource(
+                $match->load([
+                    'place',
+                    'firstTeam',
+                    'secondTeam',
+                    'winningTeam',
+                    'players.player',
+                    'players.team'
+                ])
+            )
+        ]);
+    }
+
+    public function joinPlayer(Request $request, string $id)
+    {
+        $match = FootballMatch::findOrFail($id);
+
+        if ($match->status !== 'open') {
+            return response()->json([
+                'message' => 'This match is not available.'
+            ], 422);
+        }
+
+        $player = $request->user()->player;
+
+        if (!$player) {
+            return response()->json([
+                'message' => 'Player not found'
+            ], 404);
+        }
+
+        $teamMember = $player->memberOfteam;
+
+        if (!$teamMember) {
+            return response()->json([
+                'message' => 'You must be a member of a team.'
+            ], 422);
+        }
+
+        $teamId = $teamMember->team_id;
+
+        if (
+            $teamId != $match->team1 &&
+            $teamId != $match->team2
+        ) {
+            return response()->json([
+                'message' => 'Your team is not part of this match.'
+            ], 403);
+        }
+
+        $alreadyJoined = MatchPlayer::where('match_id', $match->id)
+            ->where('player_id', $player->id)
+            ->exists();
+
+        if ($alreadyJoined) {
+            return response()->json([
+                'message' => 'You already joined this match.'
+            ], 422);
+        }
+
+        $teamPlayersCount = MatchPlayer::where(
+            'match_id',
+            $match->id
+        )
+        ->where('team_id', $teamId)
+        ->count();
+
+        if ($teamPlayersCount >= 5) {
+            return response()->json([
+                'message' => 'Your team already has 5 players in this match.'
+            ], 422);
+        }
+
+        $totalPlayers = MatchPlayer::where(
+            'match_id',
+            $match->id
+        )->count();
+
+        if ($totalPlayers >= 10) {
+            return response()->json([
+                'message' => 'This match already has 10 players.'
+            ], 422);
+        }
+
+        MatchPlayer::create([
+            'match_id' => $match->id,
+            'player_id' => $player->id,
+            'team_id' => $teamId,
+        ]);
+
+        $totalPlayers++;
+
+        if ($totalPlayers == 10) {
+            $match->update([
+                'status' => 'full'
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'You joined the match successfully.',
+            'players' => $totalPlayers,
+            'match' => new FootballMatchResource(
+                $match->load([
+                    'place',
+                    'firstTeam',
+                    'secondTeam',
+                    'winningTeam',
+                    'players.player',
+                    'players.team'
+                ])
+            )
+        ]);
     }
 
     public function update(Request $request, string $id)
@@ -128,7 +326,7 @@ class FootballMatchController extends Controller
 
         $teamMember = $player->memberOfteam;
 
-        if (!$teamMember || $teamMember->team_id !== $match->team1) {
+        if (!$teamMember || $teamMember->team_id != $match->team1) {
             return response()->json([
                 'message' => 'You are not allowed to update this match'
             ], 403);
@@ -140,23 +338,42 @@ class FootballMatchController extends Controller
             ], 403);
         }
 
-        if ($match->team2) {
+        if ($match->team2 !== null) {
             return response()->json([
                 'message' => 'You cannot update the match after another team joined'
             ], 422);
         }
 
-        $existingMatch = FootballMatch::where('id', '!=', $match->id)
-            ->where('day', $request->day)
-            ->where('time', $request->time)
-            ->where('place_id', $request->place_id)
-            ->whereIn('status', ['open', 'full'])
-            ->first();
+        $requestedDateTime = Carbon::parse(
+            $request->day . ' ' . $request->time
+        );
 
-        if ($existingMatch) {
-            return response()->json([
-                'message' => 'This place is already reserved at this date and time'
-            ], 422);
+        $existingMatches = FootballMatch::where(
+            'place_id',
+            $request->place_id
+        )
+        ->where('id', '!=', $match->id)
+        ->whereIn('status', ['open', 'full'])
+        ->get();
+
+        foreach ($existingMatches as $existingMatch) {
+
+            $existingDateTime = Carbon::parse(
+                $existingMatch->day . ' ' . $existingMatch->time
+            );
+
+            $difference = abs(
+                $requestedDateTime->diffInMinutes(
+                    $existingDateTime,
+                    false
+                )
+            );
+
+            if ($difference <= 60) {
+                return response()->json([
+                    'message' => 'This place is already reserved within one hour of this time.'
+                ], 422);
+            }
         }
 
         $match->update([
@@ -165,16 +382,18 @@ class FootballMatchController extends Controller
             'place_id' => $request->place_id,
         ]);
 
-        $match->load([
-            'place',
-            'firstTeam',
-            'secondTeam',
-            'winningTeam'
-        ]);
-
         return response()->json([
             'message' => 'Match updated successfully',
-            'match' => new FootballMatchResource($match),
+            'match' => new FootballMatchResource(
+                $match->load([
+                    'place',
+                    'firstTeam',
+                    'secondTeam',
+                    'winningTeam',
+                    'players.player',
+                    'players.team'
+                ])
+            ),
         ]);
     }
 
@@ -192,7 +411,7 @@ class FootballMatchController extends Controller
 
         $teamMember = $player->memberOfteam;
 
-        if (!$teamMember || $teamMember->team_id !== $match->team1) {
+        if (!$teamMember || $teamMember->team_id != $match->team1) {
             return response()->json([
                 'message' => 'You are not allowed to delete this match'
             ], 403);
@@ -204,7 +423,7 @@ class FootballMatchController extends Controller
             ], 403);
         }
 
-        if ($match->team2) {
+        if ($match->team2 !== null) {
             return response()->json([
                 'message' => 'You cannot delete the match after another team joined'
             ], 422);
@@ -241,7 +460,9 @@ class FootballMatchController extends Controller
             'place',
             'firstTeam',
             'secondTeam',
-            'winningTeam'
+            'winningTeam',
+            'players.player',
+            'players.team'
         ])
         ->where(function ($query) use ($teamId) {
             $query->where('team1', $teamId)
