@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import SideBar from "../component/layout/Sidebar.jsx";
 import api from "../services/api.js";
 
 function Matches() {
@@ -9,233 +8,327 @@ function Matches() {
     const [matches, setMatches] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
-
-    const [isCaptain, setIsCaptain] = useState(false);
-    const [hasEnoughMembers, setHasEnoughMembers] = useState(false);
+    const [error, setError] = useState("");
 
     useEffect(() => {
         loadMatches();
-        checkCaptain();
     }, []);
 
     const loadMatches = async () => {
         try {
-            const response = await api.get("/FootballMatch");
+            setLoading(true);
 
-            setMatches(response.data.data);
+            const response = await api.get("/matchs");
+
+            setMatches(response.data.data || []);
         } catch (error) {
             console.log(error.response?.data || error);
-            setMessage("Unable to load matches");
+
+            setError(
+                error.response?.data?.message ||
+                "Unable to load matches"
+            );
         } finally {
             setLoading(false);
         }
     };
 
-    const checkCaptain = async () => {
+    const joinMatch = async (matchId) => {
+        setMessage("");
+        setError("");
+
         try {
-            const userResponse = await api.get("/players");
-            const membersResponse = await api.get("/team-membres");
-
-            const players = userResponse.data.data;
-            const members = membersResponse.data.data;
-
-            const user = JSON.parse(localStorage.getItem("user"));
-
-            const currentPlayer = players.find(
-                (player) =>
-                    Number(player.user_id) === Number(user?.id)
-            );
-            if (!currentPlayer) {
-                return;
-            }
-
-            const myMembership = members.find(
-                (member) =>
-                    Number(member.player_id) ===
-                    Number(currentPlayer.id)
+            const response = await api.post(
+                `/matchs/${matchId}/join`
             );
 
-            if (!myMembership) {
-                return;
-            }
-
-            const captain = myMembership.grade === "captain";
-
-            setIsCaptain(captain);
-
-            const myTeamMembers = members.filter(
-                (member) =>
-                    Number(member.team_id) ===
-                    Number(myMembership.team_id)
+            setMessage(
+                response.data.message ||
+                "Your team joined successfully"
             );
 
-            setHasEnoughMembers(myTeamMembers.length >= 7);
-
+            await loadMatches();
         } catch (error) {
             console.log(error.response?.data || error);
+
+            setError(
+                error.response?.data?.message ||
+                "Unable to join match"
+            );
         }
     };
 
+    const joinPlayer = async (matchId) => {
+        setMessage("");
+        setError("");
+
+        try {
+            const response = await api.post(
+                `/matchs/${matchId}/join-player`
+            );
+
+            setMessage(
+                response.data.message ||
+                "You joined the match successfully"
+            );
+
+            await loadMatches();
+        } catch (error) {
+            console.log(error.response?.data || error);
+
+            setError(
+                error.response?.data?.message ||
+                "Unable to join match"
+            );
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+                Loading matches...
+            </div>
+        );
+    }
+
     return (
-        <div className="flex min-h-screen bg-slate-950">
-            <SideBar />
+        <div className="min-h-screen bg-slate-950 text-white p-6">
 
-            <main className="min-w-0 flex-1 p-6">
-                <section className="w-full space-y-6">
+            <div className="max-w-6xl mx-auto">
 
-                    <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
 
-                        <div>
-                            <h1 className="text-3xl font-bold text-white">
-                                Matches
-                            </h1>
+                    <div>
+                        <h1 className="text-3xl font-bold">
+                            Football Matches
+                        </h1>
 
-                            <p className="mt-2 text-slate-400">
-                                Discover and manage football matches
-                            </p>
-                        </div>
-
-                        {isCaptain && hasEnoughMembers && (
-                            <button
-                                onClick={() => navigate("/create-match")}
-                                className="rounded-xl bg-emerald-500 px-5 py-3 font-bold text-slate-950 transition hover:bg-emerald-400"
-                            >
-                                + Create Match
-                            </button>
-                        )}
-
+                        <p className="text-slate-400 mt-2">
+                            Find a match and join your team.
+                        </p>
                     </div>
 
-                    {message && (
-                        <div className="rounded-xl border border-red-900 bg-red-950/30 px-5 py-4 text-red-400">
-                            {message}
-                        </div>
-                    )}
+                    <button
+                        onClick={() => navigate("/create-match")}
+                        className="bg-emerald-600 hover:bg-emerald-500 px-5 py-3 rounded-lg font-semibold transition"
+                    >
+                        + Create Match
+                    </button>
 
-                    {loading ? (
-                        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-10 text-center">
-                            <p className="text-slate-400">
-                                Loading matches...
-                            </p>
-                        </div>
-                    ) : matches.length === 0 ? (
-                        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-10 text-center">
+                </div>
 
-                            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10">
-                                <span className="text-2xl">
-                                    ⚽
-                                </span>
-                            </div>
+                {message && (
+                    <div className="mb-6 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-lg px-4 py-3">
+                        {message}
+                    </div>
+                )}
 
-                            <h2 className="text-xl font-bold text-white">
-                                No Matches Yet
-                            </h2>
+                {error && (
+                    <div className="mb-6 bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg px-4 py-3">
+                        {error}
+                    </div>
+                )}
 
-                            <p className="mt-2 text-sm text-slate-500">
-                                There are no matches available at the moment.
-                            </p>
+                {matches.length === 0 ? (
+                    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-10 text-center">
+                        <h2 className="text-xl font-semibold">
+                            No matches available
+                        </h2>
 
-                            {isCaptain && !hasEnoughMembers && (
-                                <p className="mt-4 text-sm text-yellow-400">
-                                    Your team needs at least 7 members to create a match.
-                                </p>
-                            )}
+                        <p className="text-slate-400 mt-2">
+                            Create the first match.
+                        </p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+                        {matches.map((match) => {
 
-                            {matches.map((match) => (
+                            const players =
+                                match.players || [];
+
+                            const team1Players =
+                                players.filter(
+                                    player =>
+                                        Number(player.team_id) ===
+                                        Number(match.team1?.id)
+                                );
+
+                            const team2Players =
+                                players.filter(
+                                    player =>
+                                        Number(player.team_id) ===
+                                        Number(match.team2?.id)
+                                );
+
+                            return (
                                 <div
                                     key={match.id}
-                                    className="rounded-2xl border border-slate-800 bg-slate-900 p-6"
+                                    className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden"
                                 >
 
-                                    <div className="flex items-center justify-between">
+                                    <div className="p-5">
 
-                                        <span className="rounded-lg bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400">
-                                            Match #{match.id}
-                                        </span>
+                                        <div className="flex justify-between items-center mb-5">
 
-                                        <span className="text-sm text-slate-500">
-                                            {match.time}
-                                        </span>
+                                            <span className="text-sm text-slate-400">
+                                                Match #{match.id}
+                                            </span>
 
-                                    </div>
+                                            <span
+                                                className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                                    match.status === "open"
+                                                        ? "bg-emerald-500/10 text-emerald-400"
+                                                        : match.status === "full"
+                                                        ? "bg-blue-500/10 text-blue-400"
+                                                        : match.status === "finished"
+                                                        ? "bg-purple-500/10 text-purple-400"
+                                                        : "bg-red-500/10 text-red-400"
+                                                }`}
+                                            >
+                                                {match.status}
+                                            </span>
 
-                                    <div className="my-8 flex items-center justify-between gap-4">
-
-                                        <div className="flex-1 text-center">
-                                            <p className="font-bold text-white">
-                                                {match.team1?.name}
-                                            </p>
                                         </div>
 
-                                        <span className="text-sm font-bold text-slate-600">
-                                            VS
-                                        </span>
+                                        <div className="space-y-2 mb-5">
 
-                                        <div className="flex-1 text-center">
-                                            <p className="font-bold text-white">
-                                                {match.team2?.name || "Open"}
-                                            </p>
+                                            <div className="flex justify-between">
+                                                <span className="text-slate-400">
+                                                    Date
+                                                </span>
+
+                                                <span>
+                                                    {match.day}
+                                                </span>
+                                            </div>
+
+                                            <div className="flex justify-between">
+                                                <span className="text-slate-400">
+                                                    Time
+                                                </span>
+
+                                                <span>
+                                                    {match.time}
+                                                </span>
+                                            </div>
+
+                                            <div className="flex justify-between">
+                                                <span className="text-slate-400">
+                                                    Place
+                                                </span>
+
+                                                <span>
+                                                    {match.place?.name || "-"}
+                                                </span>
+                                            </div>
+
+                                            <div className="flex justify-between">
+                                                <span className="text-slate-400">
+                                                    City
+                                                </span>
+
+                                                <span>
+                                                    {match.place?.city || "-"}
+                                                </span>
+                                            </div>
+
+                                        </div>
+
+                                        <div className="border-t border-slate-800 pt-5">
+
+                                            <div className="flex items-center justify-between">
+
+                                                <div className="text-center flex-1">
+
+                                                    <p className="font-semibold">
+                                                        {match.team1?.name || "-"}
+                                                    </p>
+
+                                                    <p className="text-sm text-slate-400 mt-1">
+                                                        {team1Players.length}/5 players
+                                                    </p>
+
+                                                </div>
+
+                                                <div className="px-4 text-slate-500 font-bold">
+                                                    VS
+                                                </div>
+
+                                                <div className="text-center flex-1">
+
+                                                    <p className="font-semibold">
+                                                        {match.team2?.name || "Waiting"}
+                                                    </p>
+
+                                                    <p className="text-sm text-slate-400 mt-1">
+                                                        {match.team2
+                                                            ? `${team2Players.length}/5 players`
+                                                            : "No team"}
+                                                    </p>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                        <div className="mt-5">
+
+                                            {match.status === "open" &&
+                                                !match.team2 && (
+                                                    <button
+                                                        onClick={() =>
+                                                            joinMatch(match.id)
+                                                        }
+                                                        className="w-full bg-blue-600 hover:bg-blue-500 rounded-lg py-3 font-semibold transition"
+                                                    >
+                                                        Join With My Team
+                                                    </button>
+                                                )}
+
+                                            {match.status === "open" &&
+                                                match.team2 && (
+                                                    <button
+                                                        onClick={() =>
+                                                            joinPlayer(match.id)
+                                                        }
+                                                        className="w-full bg-emerald-600 hover:bg-emerald-500 rounded-lg py-3 font-semibold transition"
+                                                    >
+                                                        Join Match
+                                                    </button>
+                                                )}
+
+                                            {match.status === "full" && (
+                                                <div className="text-center bg-blue-500/10 text-blue-400 rounded-lg py-3">
+                                                    Match is full
+                                                </div>
+                                            )}
+
+                                            {match.status === "finished" && (
+                                                <div className="text-center bg-purple-500/10 text-purple-400 rounded-lg py-3">
+                                                    Match finished
+                                                </div>
+                                            )}
+
+                                            {match.status === "cancelled" && (
+                                                <div className="text-center bg-red-500/10 text-red-400 rounded-lg py-3">
+                                                    Match cancelled
+                                                </div>
+                                            )}
+
                                         </div>
 
                                     </div>
-
-                                    <div className="space-y-2 border-t border-slate-800 pt-4">
-
-                                        <p className="text-sm text-slate-400">
-                                            📅 {match.day}
-                                        </p>
-
-                                        <p className="text-sm text-slate-400">
-                                            📍 {match.place?.name}
-                                        </p>
-
-                                        <p className="text-sm text-slate-500">
-                                            🏙️ {match.place?.city}
-                                        </p>
-
-                                        <p className="text-sm text-emerald-400">
-                                            💰 {match.place?.price} DH
-                                        </p>
-
-                                    </div>
-
-                                    <div className="mt-4">
-                                        <span
-                                            className={`rounded-lg px-3 py-1 text-xs font-semibold ${
-                                                match.status === "open"
-                                                    ? "bg-yellow-500/10 text-yellow-400"
-                                                    : match.status === "full"
-                                                    ? "bg-blue-500/10 text-blue-400"
-                                                    : match.status === "finished"
-                                                    ? "bg-emerald-500/10 text-emerald-400"
-                                                    : "bg-red-500/10 text-red-400"
-                                            }`}
-                                        >
-                                            {match.status}
-                                        </span>
-                                    </div>
-
-                                    <button
-                                        onClick={() =>
-                                            navigate(`/matchs/${match.id}`)
-                                        }
-                                        className="mt-5 w-full rounded-xl bg-slate-800 px-4 py-3 font-bold text-white transition hover:bg-slate-700"
-                                    >
-                                        View Match
-                                    </button>
 
                                 </div>
-                            ))}
+                            );
+                        })}
 
-                        </div>
-                    )}
+                    </div>
+                )}
 
-                </section>
-            </main>
+            </div>
         </div>
     );
 }

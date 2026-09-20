@@ -13,9 +13,10 @@ function MyMatchs() {
 
             const response = await api.get("/matchs/my-matches");
 
-            setMatches(response.data.data);
+            setMatches(response.data.data || []);
         } catch (error) {
             console.log(error.response?.data || error);
+
             setMessage(
                 error.response?.data?.message ||
                 "Unable to load your matches"
@@ -30,33 +31,42 @@ function MyMatchs() {
     }, []);
 
     const getResult = (match) => {
-        const player = JSON.parse(localStorage.getItem("player"));
-
         if (match.status !== "finished") {
             return "upcoming";
         }
 
-        const myTeamId =
-            match.team1?.id === player?.team_id
-                ? match.team1.id
-                : match.team2?.id === player?.team_id
-                    ? match.team2.id
-                    : null;
+        const player = JSON.parse(
+            localStorage.getItem("player") || "null"
+        );
+
+        const myTeamId = player?.team_id;
 
         if (!myTeamId || !match.winner) {
             return "draw";
         }
 
-        if (Number(match.winner.id) === Number(myTeamId)) {
+        if (
+            Number(match.winner.id) ===
+            Number(myTeamId)
+        ) {
             return "win";
         }
 
         return "loss";
     };
 
-    const wins = matches.filter(match => getResult(match) === "win").length;
-    const losses = matches.filter(match => getResult(match) === "loss").length;
-    const draws = matches.filter(match => getResult(match) === "draw").length;
+    const wins = matches.filter(
+        match => getResult(match) === "win"
+    ).length;
+
+    const losses = matches.filter(
+        match => getResult(match) === "loss"
+    ).length;
+
+    const draws = matches.filter(
+        match => getResult(match) === "draw"
+    ).length;
+
     const total = matches.filter(
         match => match.status === "finished"
     ).length;
@@ -172,6 +182,7 @@ function MyMatchs() {
                             </div>
                         ) : (
                             <div className="space-y-4">
+
                                 {matches.map(match => {
                                     const result = getResult(match);
 
@@ -180,9 +191,11 @@ function MyMatchs() {
                                             key={match.id}
                                             className="rounded-xl border border-slate-800 bg-slate-950 p-5"
                                         >
+
                                             <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
 
                                                 <div>
+
                                                     <div className="flex items-center gap-3">
                                                         <span className="rounded-lg bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-300">
                                                             Match #{match.id}
@@ -194,8 +207,9 @@ function MyMatchs() {
                                                     </div>
 
                                                     <div className="mt-4 flex items-center gap-4">
+
                                                         <span className="font-bold text-white">
-                                                            {match.team1?.name}
+                                                            {match.team1?.name || "-"}
                                                         </span>
 
                                                         <span className="text-xs font-bold text-slate-600">
@@ -205,17 +219,25 @@ function MyMatchs() {
                                                         <span className="font-bold text-white">
                                                             {match.team2?.name || "Waiting for opponent"}
                                                         </span>
+
                                                     </div>
 
                                                     <div className="mt-3 flex flex-wrap gap-4 text-sm text-slate-500">
+
                                                         <span>
                                                             🕐 {match.time}
                                                         </span>
 
                                                         <span>
-                                                            📍 {match.place}
+                                                            📍 {match.place?.name || "-"}
                                                         </span>
+
+                                                        <span>
+                                                            📍 {match.place?.city || "-"}
+                                                        </span>
+
                                                     </div>
+
                                                 </div>
 
                                                 <div className="flex items-center gap-3">
@@ -249,9 +271,11 @@ function MyMatchs() {
                                                 </div>
 
                                             </div>
+
                                         </div>
                                     );
                                 })}
+
                             </div>
                         )}
 
