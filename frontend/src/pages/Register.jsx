@@ -13,6 +13,8 @@ function Register() {
   const onSubmit = async (data) => {
    try {
        const reponse = await api.post("/register",data);
+       console.log(reponse);
+       
         localStorage.setItem("token",reponse.data.token)
         localStorage.setItem("user",JSON.stringify(reponse.data.user))
         localStorage.setItem("player",JSON.stringify(reponse.data.player))
