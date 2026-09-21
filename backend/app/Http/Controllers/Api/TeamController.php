@@ -7,8 +7,11 @@ use App\Models\Team;
 use Illuminate\Http\Request;
 use App\Http\Resources\TeamResource;
 use App\Services\TeamService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class TeamController extends Controller
 {
+        use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
@@ -68,7 +71,9 @@ class TeamController extends Controller
             'logo' => 'string',
             'classment' => 'integer',
         ]);
-        $result=$teamService->updateTeamService($validation,$id);
+        $team=Team::findorFail($id);
+        $this->authorize("update",$team);
+        $result=$teamService->updateTeamService($validation,$team);
         return response()->json([
             "message"=>"team update with success",
             "team"=>new TeamResource($result["team"]),
@@ -80,7 +85,9 @@ class TeamController extends Controller
      */
     public function destroy(string $id,TeamService $teamService)
     {
-        $teamService->deleteTeamService($id);
+         $team=Team::findorFail($id);
+        $this->authorize("delete",$team);
+        $teamService->deleteTeamService($team);
         return response()->json([
             "message"=>"team delete with success",
         ]);

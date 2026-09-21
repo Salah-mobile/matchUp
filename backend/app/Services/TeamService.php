@@ -3,10 +3,8 @@ namespace App\Services;
 
 use App\Models\Team;
 use App\Models\TeamMember;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class TeamService{
-    use AuthorizesRequests;
     public function createTeamService($player,$data){
         if (!$player) {
             return[
@@ -40,17 +38,13 @@ class TeamService{
         ];
     }
 
-    public function updateTeamService($validation,$id){
-        $team=Team::findorFail($id);
-        $this->authorize("update",$team);
+    public function updateTeamService($validation,$team){
         $team->update($validation);
         return [
             "team"=>$team
         ];
     }
-    public function deleteTeamService($id){
-        $team=Team::findorFail($id);
-        $this->authorize("delete",$team);
+    public function deleteTeamService($team){
         $team->delete();
     }
 }

@@ -6,10 +6,6 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class TeamMembreService{
     use AuthorizesRequests;
     public function CreateTeamMembreService($data,$player){
-                $this->authorize(
-                    "create",
-                    TeamMember::class
-                );
             if (!$player) {
                   return [
                     "message"=>"found",
@@ -32,12 +28,8 @@ class TeamMembreService{
                 "teamMember"=>$membre
             ];
     }
-    public function updateTeamMembreService($validation,$id){
-        $membre = TeamMember::findOrFail($id);
-        $this->authorize(
-            "update",
-            $membre
-        );
+    public function updateTeamMembreService($validation,$membre){
+
         $membre->update([
             "grade" => $validation["grade"],
         ]);
@@ -45,13 +37,8 @@ class TeamMembreService{
             "membre"=>$membre,
         ];
     }
-    public function destroyTeamMembreService($id){
-        $membre = TeamMember::findOrFail($id);
+    public function destroyTeamMembreService($membre){
 
-        $this->authorize(
-            "delete",
-            $membre
-        );
 
         $membre->delete();
     }

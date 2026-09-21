@@ -35,6 +35,10 @@ class TeamMemberController extends Controller
             "team_id" => "required|exists:teams,id",
             "grade" => "required|string",
         ]);
+        $this->authorize(
+                    "create",
+                    TeamMember::class
+                );
         $player = $request->user()->player;
         $result=$teamMembreService->CreateTeamMembreService($data,$player);
         if($result["message"]==="found"){
@@ -65,16 +69,25 @@ class TeamMemberController extends Controller
         $validation=$request->validate([
             "grade" => "required|string"
         ]);
-        $result=$teamMembreService->updateTeamMembreService($validation,$id);
+        $membre = TeamMember::findOrFail($id);
+        $this->authorize(
+            "update",
+            $membre
+        );
+        $result=$teamMembreService->updateTeamMembreService($validation,$membre);
         return response()->json([
             "message" => "The member updated successfully",
             "membre" => new TeamMemberResource($result["membre"]),
         ]);
     }
-
     public function destroy(string $id,TeamMembreService $teamMembreService)
     {
-        $teamMembreService->destroyTeamMembreService($id);
+        $membre = TeamMember::findOrFail($id);
+        $this->authorize(
+            "delete",
+            $membre
+        );
+        $teamMembreService->destroyTeamMembreService($membre);
         return response()->json([
             "message" => "The member deleted successfully",
         ]);
