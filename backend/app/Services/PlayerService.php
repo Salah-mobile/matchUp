@@ -1,10 +1,8 @@
 <?php
 namespace App\Services;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Models\Player;
 
 class PlayerService{
-    use AuthorizesRequests;
     public function CreatePlayerService($data,$userId){
          $player=Player::create([
             'position'=>$data["position"],
@@ -17,15 +15,12 @@ class PlayerService{
             "player"=>$player
         ];
     }
-    public function updatePlayerService($validation,$id){
-         $player=Player::findOrFail($id);
-        $this->authorize('update',$player);
+    public function updatePlayerService($validation,$player){
         $player->update($validation);
         return ["player"=>$player];
     }
-    public function deletePlayerService($id){
-        $player=Player::findOrFail($id);
-        $this->authorize('delete',$player);
+    public function deletePlayerService($player){
+
        $player->delete();
     }
 

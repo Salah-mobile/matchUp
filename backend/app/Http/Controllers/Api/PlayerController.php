@@ -5,10 +5,14 @@ use App\Http\Resources\PlayerResource;
 use App\Models\Player;
 use App\Services\PlayerService;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+
 
 
 class PlayerController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
@@ -57,7 +61,9 @@ class PlayerController extends Controller
             'points'=>"required",
             'trustworthy'=>"required",
         ]);
-        $result=$playerService->updatePlayerService($validation,$id);
+         $player=Player::findOrFail($id);
+         $this->authorize('update',$player::class);
+        $result=$playerService->updatePlayerService($validation,$player);
         return response()->json([
             "message"=>"update the player with success",
             "player"=>new PlayerResource($result["player"]),
@@ -69,7 +75,9 @@ class PlayerController extends Controller
      */
     public function destroy(string $id,PlayerService $playerService)
     {
-       $playerService->deletePlayerService($id);
+         $player=Player::findOrFail($id);
+         $this->authorize('delete',$player);
+       $playerService->deletePlayerService($player);
        return response()->json([
             "message"=>"delete the player with success",
         ]);
