@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PlayerResource;
+use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use App\Services\AuthService;
 class AuthController extends Controller
@@ -21,7 +22,7 @@ class AuthController extends Controller
             "message"=>"create user with success",
             "token"=>$result["token"],
             "player"=>new PlayerResource($result["player"]),
-            "user"=>new PlayerResource($result["user"]),
+            "user"=>new UserResource($result["user"]),
         ]);
     }
     public function login(Request $request,AuthService $authService)
@@ -40,7 +41,7 @@ class AuthController extends Controller
                 'response' => 'Login successfully',
                 "token"=>$result["token"],
                 "player"=>new PlayerResource($result["player"]),
-                "user"=>new PlayerResource($result["user"]),
+                "user"=>new UserResource($result["user"]),
             ]);
         }
     }
