@@ -4,79 +4,49 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PlayerResource;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use App\Http\Resources\UserResource;
-use App\Models\Player;
-
+use App\Services\AuthService;
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    public function register(Request $request,AuthService $authService)
     {
-        $request->validate([
+        $data=$request->validate([
             'name' => 'required|string',
             'lastname' => 'required|string',
             'email' => 'required|email',
             'password' => 'required|min:8'
         ]);
-
-        $user = User::create([
-            "name" => $request->name,
-            "lastname" => $request->lastname,
-            "email" => $request->email,
-            "password" => $request->password,
-        ]);
-
-       $player = Player::create([
-            'position' => 'Unknown',
-            'level' => 1,
-            'points' => 0,
-            'trustworthy' => 100,
-            'user_id' => $user->id,
-        ]);
-
-        $token = $user->createToken("auth_token")->plainTextToken;
-
+        $result=$authService->RegisterService($data);
         return response()->json([
-            "response" => "create user with success",
-            "user" => new UserResource($user),
-            "player" => new PlayerResource($player),
-            "token" => $token
+            "message"=>"create user with success",
+            "token"=>$result["token"],
+            "player"=>new PlayerResource($result["player"]),
+            "user"=>new PlayerResource($result["user"]),
         ]);
     }
-
-    public function login(Request $request)
+    public function login(Request $request,AuthService $authService)
     {
-        $request->validate([
+        $data=$request->validate([
             "email" => "required|email",
             "password" => "required",
         ]);
-
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        $result=$authService->LoginService($data);
+        if(!$result){
             return response()->json([
-                "error" => "Invalid credentials"
-            ], 401);
+                "error"=>"Invalid credentials",
+            ]);
+        }else{
+            return response()->json([
+                'response' => 'Login successfully',
+                "token"=>$result["token"],
+                "player"=>new PlayerResource($result["player"]),
+                "user"=>new PlayerResource($result["user"]),
+            ]);
         }
-
-        $player = Player::where("user_id", $user->id)->first();
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'response' => 'Login successfully',
-            'user' => new UserResource($user),
-            'player' => $player,
-            'token' => $token
-        ]);
     }
-
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-
         return response()->json([
             "logout" => "success"
         ]);
