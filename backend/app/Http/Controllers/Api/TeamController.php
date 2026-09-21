@@ -7,6 +7,7 @@ use App\Models\Team;
 use Illuminate\Http\Request;
 use App\Http\Resources\TeamResource;
 use App\Models\TeamMember;
+use App\Services\TeamService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class TeamController extends Controller
 {
@@ -23,47 +24,29 @@ class TeamController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request,TeamService $teamService)
     {
-        $request->validate([
+        $data=$request->validate([
             'name' => 'required|string',
             'description' => 'required|string',
             'logo' => 'required|string',
         ]);
-
-        $player = $request->user()->player;
-
-        if (!$player) {
+        $player=$request->user()->player;
+        $result=$teamService->createTeamService($player,$data);
+        if($result["message"]==="found"){
             return response()->json([
                 'message' => 'Player not found'
-            ], 404);
-        }
-
-        if ($player->memberOfteam) {
-            return response()->json([
+            ]);
+        }else if($result["message"]==="exist"){
+             return response()->json([
                 'message' => 'You are already a member of a team'
-            ], 422);
+            ]);
+        }else{
+            return response()->json([
+                'message' => 'Team created successfully',
+                'team' => new TeamResource($result["team"]),
+            ]);
         }
-
-        $team = Team::create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'logo' => $request->logo,
-            'classment' => 0,
-            'captain' => $player->id,
-        ]);
-
-        TeamMember::create([
-            'team_id' => $team->id,
-            'player_id' => $player->id,
-            'joined_at' => now(),
-            'grade' => 'captain',
-        ]);
-
-        return response()->json([
-            'message' => 'Team created successfully',
-            'team' => new TeamResource($team),
-        ], 201);
     }
 
 
@@ -80,7 +63,7 @@ class TeamController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id,TeamService $teamService)
     {
         $validation=$request->validate([
             'name' => 'string',
@@ -88,23 +71,19 @@ class TeamController extends Controller
             'logo' => 'string',
             'classment' => 'integer',
         ]);
-        $team=Team::findorFail($id);
-        $this->authorize("update",$team);
-        $team->update($validation);
+        $result=$teamService->updateTeamService($validation,$id);
         return response()->json([
             "message"=>"team update with success",
-            "team"=>new TeamResource($team),
+            "team"=>new TeamResource($result["team"]),
         ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id,TeamService $teamService)
     {
-        $team=Team::findorFail($id);
-        $this->authorize("delete",$team);
-        $team->delete();
+        $teamService->deleteTeamService($id);
         return response()->json([
             "message"=>"team delete with success",
         ]);
