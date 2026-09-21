@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Resources;
-
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Carbon\Carbon;
@@ -22,6 +20,8 @@ class FootballMatchResource extends JsonResource
         }
 
         $myCurrentTeamId = $player?->memberOfteam?->team_id;
+
+        $isCaptain = $player?->memberOfteam?->grade === 'captain';
 
         $canFinish = false;
 
@@ -83,7 +83,9 @@ class FootballMatchResource extends JsonResource
             'players' => $this->players->map(function ($matchPlayer) {
                 return [
                     'id' => $matchPlayer->id,
+
                     'player_id' => $matchPlayer->player_id,
+
                     'team_id' => $matchPlayer->team_id,
 
                     'player' => $matchPlayer->player ? [
@@ -100,9 +102,12 @@ class FootballMatchResource extends JsonResource
 
             'is_joined' => $myParticipation ? true : false,
 
+            'is_captain' => $isCaptain,
+
             'can_finish' => $canFinish,
 
             'created_at' => $this->created_at,
         ];
     }
 }
+

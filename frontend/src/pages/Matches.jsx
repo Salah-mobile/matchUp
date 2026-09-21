@@ -11,12 +11,6 @@ function Matches() {
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
 
-    const player = JSON.parse(
-        localStorage.getItem("player") || "null"
-    );
-
-    const isCaptain = player?.grade === "captain";
-
     useEffect(() => {
         loadMatches();
     }, []);
@@ -55,6 +49,7 @@ function Matches() {
             );
 
             await loadMatches();
+
         } catch (error) {
             console.log(error.response?.data || error);
 
@@ -80,6 +75,7 @@ function Matches() {
             );
 
             await loadMatches();
+
         } catch (error) {
             console.log(error.response?.data || error);
 
@@ -97,9 +93,11 @@ function Matches() {
                 <SideBar />
 
                 <main className="flex flex-1 items-center justify-center">
+
                     <p className="text-slate-400">
                         Loading matches...
                     </p>
+
                 </main>
 
             </div>
@@ -115,28 +113,15 @@ function Matches() {
 
                 <div className="mx-auto max-w-7xl">
 
-                    <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div className="mb-8">
 
-                        <div>
-                            <h1 className="text-3xl font-bold text-white">
-                                Football Matches
-                            </h1>
+                        <h1 className="text-3xl font-bold text-white">
+                            Football Matches
+                        </h1>
 
-                            <p className="mt-2 text-slate-400">
-                                Find a match and join your team.
-                            </p>
-                        </div>
-
-                        {isCaptain && (
-                            <button
-                                onClick={() =>
-                                    navigate("/create-match")
-                                }
-                                className="rounded-lg bg-emerald-600 px-5 py-3 font-semibold text-white transition hover:bg-emerald-500"
-                            >
-                                + Create Match
-                            </button>
-                        )}
+                        <p className="mt-2 text-slate-400">
+                            Find a match and join your team.
+                        </p>
 
                     </div>
 
@@ -172,22 +157,19 @@ function Matches() {
 
                             {matches.map((match) => {
 
-                                const players =
-                                    match.players || [];
+                                const players = match.players || [];
 
-                                const team1Players =
-                                    players.filter(
-                                        player =>
-                                            Number(player.team_id) ===
-                                            Number(match.team1?.id)
-                                    );
+                                const team1Players = players.filter(
+                                    player =>
+                                        Number(player.team_id) ===
+                                        Number(match.team1?.id)
+                                );
 
-                                const team2Players =
-                                    players.filter(
-                                        player =>
-                                            Number(player.team_id) ===
-                                            Number(match.team2?.id)
-                                    );
+                                const team2Players = players.filter(
+                                    player =>
+                                        Number(player.team_id) ===
+                                        Number(match.team2?.id)
+                                );
 
                                 const myCurrentTeamId =
                                     Number(match.my_current_team_id);
@@ -203,23 +185,28 @@ function Matches() {
                                 const isMyTeam =
                                     isMyTeam1 || isMyTeam2;
 
+                                const isCaptain =
+                                    match.is_captain === true;
+
                                 const canJoinWithTeam =
                                     isCaptain &&
                                     !isMyTeam &&
                                     match.status === "open" &&
                                     !match.team2;
 
+                                const myTeamPlayers =
+                                    isMyTeam1
+                                        ? team1Players.length
+                                        : team2Players.length;
+
                                 const canJoinPlayer =
                                     isMyTeam &&
                                     match.status === "open" &&
                                     !match.is_joined &&
-                                    (
-                                        isMyTeam1
-                                            ? team1Players.length < 5
-                                            : team2Players.length < 5
-                                    );
+                                    myTeamPlayers < 5;
 
                                 return (
+
                                     <div
                                         key={match.id}
                                         className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900"
@@ -252,6 +239,7 @@ function Matches() {
                                             <div className="mb-5 space-y-2">
 
                                                 <div className="flex justify-between gap-4">
+
                                                     <span className="text-slate-400">
                                                         Date
                                                     </span>
@@ -259,9 +247,11 @@ function Matches() {
                                                     <span className="text-white">
                                                         {match.day}
                                                     </span>
+
                                                 </div>
 
                                                 <div className="flex justify-between gap-4">
+
                                                     <span className="text-slate-400">
                                                         Time
                                                     </span>
@@ -269,9 +259,11 @@ function Matches() {
                                                     <span className="text-white">
                                                         {match.time}
                                                     </span>
+
                                                 </div>
 
                                                 <div className="flex justify-between gap-4">
+
                                                     <span className="text-slate-400">
                                                         Place
                                                     </span>
@@ -279,9 +271,11 @@ function Matches() {
                                                     <span className="text-right text-white">
                                                         {match.place?.name || "-"}
                                                     </span>
+
                                                 </div>
 
                                                 <div className="flex justify-between gap-4">
+
                                                     <span className="text-slate-400">
                                                         City
                                                     </span>
@@ -289,6 +283,7 @@ function Matches() {
                                                     <span className="text-white">
                                                         {match.place?.city || "-"}
                                                     </span>
+
                                                 </div>
 
                                             </div>
@@ -320,9 +315,12 @@ function Matches() {
                                                         </p>
 
                                                         <p className="mt-1 text-sm text-slate-400">
+
                                                             {match.team2
                                                                 ? `${team2Players.length}/5 players`
-                                                                : "No team"}
+                                                                : "No team"
+                                                            }
+
                                                         </p>
 
                                                     </div>
@@ -397,6 +395,7 @@ function Matches() {
                                         </div>
 
                                     </div>
+
                                 );
                             })}
 
@@ -413,3 +412,4 @@ function Matches() {
 }
 
 export default Matches;
+
