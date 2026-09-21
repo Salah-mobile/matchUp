@@ -6,12 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Team;
 use Illuminate\Http\Request;
 use App\Http\Resources\TeamResource;
-use App\Models\TeamMember;
 use App\Services\TeamService;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class TeamController extends Controller
 {
-    use AuthorizesRequests;
     /**
      * Display a listing of the resource.
      */

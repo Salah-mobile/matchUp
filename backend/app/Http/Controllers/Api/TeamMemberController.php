@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TeamMemberResource;
 use App\Models\TeamMember;
+use App\Services\TeamMembreService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
@@ -28,43 +29,28 @@ class TeamMemberController extends Controller
         return TeamMemberResource::collection($teamMembers);
     }
 
-    public function store(Request $request)
+    public function store(Request $request,TeamMembreService $teamMembreService)
     {
-        $this->authorize(
-            "create",
-            TeamMember::class
-        );
-
-        $request->validate([
+        $data=$request->validate([
             "team_id" => "required|exists:teams,id",
             "grade" => "required|string",
         ]);
-
         $player = $request->user()->player;
-
-        if (!$player) {
+        $result=$teamMembreService->CreateTeamMembreService($data,$player);
+        if($result["message"]==="found"){
             return response()->json([
-                "message" => "Player not found"
-            ], 404);
-        }
-
-        if ($player->memberOfTeam) {
+                       "message" => "Player not found"
+            ]);
+        }elseif($result["message"]==="exist"){
             return response()->json([
-                "message" => "You are already a member of a team"
-            ], 422);
+                        "message" => "You are already a member of a team"
+                    ]);
+        }else{
+            return response()->json([
+                "message" => "Add member with success",
+                "membre" => new TeamMemberResource($result["teamMember"]),
+            ]);
         }
-
-        $membre = TeamMember::create([
-            "team_id" => $request->team_id,
-            "player_id" => $player->id,
-            "joined_at" => now(),
-            "grade" => $request->grade,
-        ]);
-
-        return response()->json([
-            "message" => "Add member with success",
-            "membre" => new TeamMemberResource($membre),
-        ], 201);
     }
 
     public function show(string $id)
@@ -74,40 +60,21 @@ class TeamMemberController extends Controller
         return new TeamMemberResource($membre);
     }
 
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id,TeamMembreService $teamMembreService)
     {
-        $request->validate([
+        $validation=$request->validate([
             "grade" => "required|string"
         ]);
-
-        $membre = TeamMember::findOrFail($id);
-
-        $this->authorize(
-            "update",
-            $membre
-        );
-
-        $membre->update([
-            "grade" => $request->grade
-        ]);
-
+        $result=$teamMembreService->updateTeamMembreService($validation,$id);
         return response()->json([
             "message" => "The member updated successfully",
-            "membre" => new TeamMemberResource($membre),
+            "membre" => new TeamMemberResource($result["membre"]),
         ]);
     }
 
-    public function destroy(string $id)
+    public function destroy(string $id,TeamMembreService $teamMembreService)
     {
-        $membre = TeamMember::findOrFail($id);
-
-        $this->authorize(
-            "delete",
-            $membre
-        );
-
-        $membre->delete();
-
+        $teamMembreService->destroyTeamMembreService($id);
         return response()->json([
             "message" => "The member deleted successfully",
         ]);
