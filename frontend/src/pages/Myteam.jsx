@@ -24,7 +24,6 @@ function MyTeam() {
         loadData();
     }, []);
 
-
     const loadData = async () => {
     try {
         setLoading(true);
@@ -66,7 +65,6 @@ function MyTeam() {
         );
 
         console.log("MY MEMBERS:", myMembers);
-
         setMyTeam(team);
         setMembers(myMembers);
 
@@ -119,6 +117,31 @@ function MyTeam() {
             );
         }
     };
+    const QuitTeam = async (team) => {
+        try {
+            const response = await api.delete("/quitTeam", {
+                data: {
+                    team_id: team.id
+                }
+            });
+
+            console.log(response.data);
+
+            setMessage("You quit the team successfully");
+
+            await loadData();
+
+        } catch (error) {
+            console.log("STATUS:", error.response?.status);
+            console.log("ERROR:", error.response?.data);
+
+            setMessage(
+                error.response?.data?.message ||
+                "Unable to quit team"
+            );
+        }
+    };
+     
 
     if (loading) {
         return (
@@ -180,6 +203,8 @@ function MyTeam() {
                                         </div>
                                     </div>
 
+                                    <div className="flex items-center gap-3">
+
                                     <div className="rounded-xl bg-slate-800 px-5 py-3 text-center">
                                         <p className="text-xs uppercase text-slate-400">
                                             Ranking
@@ -189,6 +214,35 @@ function MyTeam() {
                                             {myTeam.classment}
                                         </p>
                                     </div>
+
+                                    <button
+                                        className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-5 py-3 font-semibold text-red-400 transition duration-200 hover:border-red-500 hover:bg-red-500 hover:text-white"
+                                        onClick={()=>{
+                                            QuitTeam(
+                                                myTeam
+                                            );
+                                        }}
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="18"
+                                            height="18"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        >
+                                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                            <polyline points="16 17 21 12 16 7" />
+                                            <line x1="21" y1="12" x2="9" y2="12" />
+                                        </svg>
+
+                                        Quit Team
+                                    </button>
+
+                                </div>
                                 </div>
                             </div>
 
