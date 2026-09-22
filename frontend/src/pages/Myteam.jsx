@@ -23,48 +23,45 @@ function MyTeam() {
     useEffect(() => {
         loadData();
     }, []);
+    const updateLocalPlayer = async () => {
+            const oldPlayer = JSON.parse(localStorage.getItem("player"));
+
+            const response = await api.get("/players");
+
+            const newPlayer = response.data.data.find(
+                player => player.id == oldPlayer.id
+            );
+
+            localStorage.setItem(
+                "player",
+                JSON.stringify(newPlayer)
+            );
+        };
 
     const loadData = async () => {
     try {
         setLoading(true);
-
         const teamsResponse = await api.get("/teams");
         const membersResponse = await api.get("/team-membres");
-
         const allTeams = teamsResponse.data.data;
         const allMembers = membersResponse.data.data;
-
-        console.log("PLAYER:", player);
-        console.log("ALL TEAMS:", allTeams);
-        console.log("ALL MEMBERS:", allMembers);
-
         setTeams(allTeams);
-
         const myMembership = allMembers.find(
             member => Number(member.player_id) === Number(player.id)
         );
-
-        console.log("MY MEMBERSHIP:", myMembership);
-
         if (!myMembership) {
             setMyTeam(null);
             setMembers([]);
             return;
         }
-
         const team = allTeams.find(
             team => Number(team.id) === Number(myMembership.team_id)
         );
-
-        console.log("MY TEAM:", team);
-
         const myMembers = allMembers.filter(
             member =>
                 Number(member.team_id) ===
                 Number(myMembership.team_id)
         );
-
-        console.log("MY MEMBERS:", myMembers);
         setMyTeam(team);
         setMembers(myMembers);
 
@@ -86,6 +83,7 @@ function MyTeam() {
             setMessage("You joined the team successfully");
 
             await loadData();
+            await updateLocalPlayer();
         } catch (error) {
             setMessage(
                 error.response?.data?.message ||
@@ -107,7 +105,8 @@ function MyTeam() {
             reset();
             setShowCreate(false);
 
-            await loadData();
+            await loadData()
+            await updateLocalPlayer()
         } catch (error) {
             console.log(error.response?.data || error);
 
@@ -124,17 +123,10 @@ function MyTeam() {
                     team_id: team.id
                 }
             });
-
-            console.log(response.data);
-
             setMessage("You quit the team successfully");
-
             await loadData();
-
+            await updateLocalPlayer();
         } catch (error) {
-            console.log("STATUS:", error.response?.status);
-            console.log("ERROR:", error.response?.data);
-
             setMessage(
                 error.response?.data?.message ||
                 "Unable to quit team"

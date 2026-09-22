@@ -51,10 +51,10 @@ function SideBar({user}){
                             </div>
                         </Link>
                         <Link
-                            to="/notifications"
+                            to="/classment"
                             className="mb-2 flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-400 transition hover:bg-slate-800 hover:text-white"
                         >
-                            Notifications
+                            Classment
                         </Link>
                         <p className="mb-3 mt-8 px-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
                             Progress

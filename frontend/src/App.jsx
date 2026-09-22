@@ -11,6 +11,8 @@ import Matches from "./pages/Matches";
 import MyMatchs from "./pages/MyMatchs";
 import CreateMatch from "./pages/CreateMatche";
 import MatchDetails from "./pages/MatchDeatils";
+import Invitation from "./pages/Invitation";
+import ClassmentPage from "./pages/ClassmentPage";
 function App(){
     return <BrowserRouter>
       <Routes>
@@ -57,8 +59,17 @@ function App(){
           </ProtectedRoute>
         }
       />
+      <Route  path="/invitations" element={
+        <ProtectedRoute>
+          <Invitation/>
+        </ProtectedRoute>
+      }/>
+      <Route path="/classment" element={
+        <ProtectedRoute>
+          <ClassmentPage/>
+        </ProtectedRoute>
+      }/>
       </Routes>
-      
     </BrowserRouter>
 }
 export default App;
