@@ -92,4 +92,20 @@ class TeamController extends Controller
             "message"=>"team delete with success",
         ]);
     }
+    public function QuitTeam(Request $request,TeamService $teamService){
+        $player=$request->user()->player;
+        $request->validate([
+            "team_id"=>"required"
+        ]);
+        $team=Team::findOrFail($request->team_id);
+        $result=$teamService->QuitTeamService($player,$team);
+        if(isset($result["error"])){
+            response()->json([
+                'message'=>$result["error"]
+            ]);
+        }
+        return response()->json([
+            "message"=>$result["message"]
+        ]);
+    }
 }

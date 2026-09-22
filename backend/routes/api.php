@@ -21,6 +21,7 @@ Route::middleware("auth:sanctum")->group(function () {
 
     Route::apiResource("players", PlayerController::class);
     Route::apiResource("teams", TeamController::class);
+    Route::delete("/quitTeam",[TeamController::class,"QuitTeam"]);
     Route::apiResource("team-membres", TeamMemberController::class);
     Route::apiResource("users", UserController::class);
     Route::apiResource("places", PlaceController::class);
