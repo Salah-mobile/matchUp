@@ -3,26 +3,18 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FootballMatchResource;
 use App\Models\FootballMatch;
-use App\Models\TeamMember;
-use App\Models\MatchPlayer;
 use App\Services\FootballMtachService ;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-
 class FootballMatchController extends Controller
 {
     public function index(Request $request,FootballMtachService $footballMatchService)
     {
         $player = $request->user()->player;
         $result=$footballMatchService->indexService($player);
-        if($result['message']==='found'){
-            return response()->json([
-                  'message' => 'Player not found'
-              ], 404);
-        }elseif($result['message']==="member"){
-            return response()->json([
-                  'message' => 'You are not a member of a team'
-              ], 422);
+        if(isset($result["error"])){
+           return response()->json([
+                  'message' => $result["error"]
+              ]);
         }
         return FootballMatchResource::collection($result["filteredMatches"]);
     }

@@ -13,13 +13,13 @@ class FootballMtachService
     {
         if (!$player) {
             return [
-                "message" => "found",
+                "error" => "'Player not found'",
             ];
         }
         $teamMember = $player->memberOfteam;
         if (!$teamMember) {
             return [
-                "message" => "member",
+                "error" => "You are not a member of a team",
             ];
         }
         $teamId = $teamMember->team_id;
