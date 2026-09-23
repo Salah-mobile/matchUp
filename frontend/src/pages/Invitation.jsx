@@ -36,6 +36,8 @@ function Invitation() {
          LoadData()
        } catch (error) {
         console.log(error);
+         console.log("Status:", error.response?.status);
+        console.log("Laravel response:", error.response?.data);
        }
   }
   const reject = async (id)=>{
