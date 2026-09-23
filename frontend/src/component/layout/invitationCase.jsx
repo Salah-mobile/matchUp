@@ -1,4 +1,4 @@
-function InvitaionCase({ type, player, team , send_at}) {
+function InvitaionCase({ type, player, team , send_at , accept , reject}) {
   if (type == "teamInvitation") {
     return (
       <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 text-white shadow-lg shadow-black/10">
@@ -15,7 +15,6 @@ function InvitaionCase({ type, player, team , send_at}) {
             </p>
           </div>
         </div>
-
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div className="rounded-xl bg-slate-800/60 p-4">
             <p className="text-xs text-slate-400">Trustworthy</p>
@@ -34,10 +33,14 @@ function InvitaionCase({ type, player, team , send_at}) {
         <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
           <p className="text-sm text-slate-500">Send at: {send_at}</p>
           <div className="flex gap-2">
-            <button className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800">
+            <button className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800"
+              onClick={()=>reject()}
+            >
               Reject
             </button>
-            <button className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400">
+            <button className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400"
+            onClick={()=>accept()}
+            >
               Accept
             </button>
           </div>
@@ -73,10 +76,14 @@ function InvitaionCase({ type, player, team , send_at}) {
         <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
           <p className="text-sm text-slate-500">Send at: {player.send_at}</p>
           <div className="flex gap-2">
-            <button className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800">
+            <button className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800"
+              onClick={()=>reject()}
+            >
               Reject
             </button>
-            <button className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400">
+            <button className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400"
+            onClick={()=>accept()}
+            >
               Accept
             </button>
           </div>

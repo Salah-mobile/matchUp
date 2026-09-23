@@ -29,13 +29,21 @@ function Invitation() {
       console.log(error);
     }
   };
-  const accept = async () => {
+  const accept = async (id) => {
        try {
-
-        
+         const response =await api.post(`/invitations/${id}/accept`)
+         console.log(response.data);
+         LoadData()
        } catch (error) {
-        
+        console.log(error);
        }
+  }
+  const reject = async (id)=>{
+    try {
+        
+    } catch (error) {
+        
+    }
   }
 
   useEffect(() => {
@@ -106,6 +114,8 @@ function Invitation() {
                             type={"teamInvitation"}
                             player={it.player}
                             send_at={it.send_at}
+                            accept={()=>accept(it.id)}
+                            reject={()=>reject(it.id)}
                         />
                         );
                     }
@@ -142,6 +152,8 @@ function Invitation() {
                             type={"join_request"}
                             team={it.team}
                             send_at={it.send_at}
+                            accept={accept(it.id)}
+                            reject={reject(it.id)}
                         />
                         );
                     }
