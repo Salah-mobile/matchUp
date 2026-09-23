@@ -157,7 +157,7 @@ function Matches() {
                             {matches.map((match) => {
 
                                 const players = match.players || [];
-
+                                
                                 const team1Players = players.filter(
                                     player =>
                                         Number(player.team_id) ===
