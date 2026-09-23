@@ -21,6 +21,7 @@ class InvitationResource extends JsonResource
             "type"=>$this->type,
             "player"=>new PlayerResource($this->player),
             "team"=>new TeamResource($this->team),
+            "send_at"=>$this->send_at,
         ];
     }
 }

@@ -90,40 +90,23 @@ class InvitationController extends Controller
             'data' => $invitation
         ],);
     }
-    public function accept(Invitation $invitation)
+    public function accept($invitation_id,InvitationService $invitationService)
     {
+        $invitation=Invitation::findOrFail($invitation_id);
         $this->authorize('accept', $invitation);
-
-        if ($invitation->status !== 'pending') {
+        $result=$invitationService->acceptInvitationService($invitation);
+        if(isset($result["error"])){
             return response()->json([
-                'message' => 'This invitation is no longer pending.'
-            ],);
+                   'message' =>$result["error"]
+               ],);
         }
-
-        $player = $invitation->player;
-
-        if ($player->memberOfteam()->exists()) {
-            return response()->json([
-                'message' => 'This player is already a member of a team.'
-            ],);
-        }
-
-        $teamMember = TeamMember::create([
-            'team_id' => $invitation->team_id,
-            'player_id' => $invitation->player_id,
-            'grade' => 'member',
-            'joined_at' => now(),
-        ]);
-
-        $invitation->update([
-            'status' => 'accepted',
-        ]);
-
         return response()->json([
             'message' => 'Invitation accepted successfully.',
-            'data' => $teamMember
+            'data' => $result["data"]
         ]);
     }
+
+    
     public function reject(Invitation $invitation)
     {
         $this->authorize('reject', $invitation);
