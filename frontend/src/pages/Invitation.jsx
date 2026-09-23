@@ -40,9 +40,11 @@ function Invitation() {
   }
   const reject = async (id)=>{
     try {
-        
+        const response = await api.post(`/invitations/${id}/reject`)
+        console.log(response.data)
+        LoadData()
     } catch (error) {
-        
+        console.log(error)
     }
   }
 
