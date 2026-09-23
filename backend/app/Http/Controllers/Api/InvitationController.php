@@ -35,9 +35,7 @@ class InvitationController extends Controller
             'player_id' => 'required|exists:players,id',
             'type' => 'required|in:team_invitation,join_request',
         ]);
-
         if ($validated['type'] === 'team_invitation') {
-
             $this->authorize(
                 'createTeamInvitation',
                 [Invitation::class, $validated['team_id']]
@@ -84,7 +82,6 @@ class InvitationController extends Controller
             'status' => 'pending',
             'send_at' => now(),
         ]);
-
         return response()->json([
             'message' => 'Invitation created successfully',
             'data' => $invitation
@@ -121,7 +118,6 @@ class InvitationController extends Controller
             'message' => 'Invitation rejected successfully.',
             'data' => $result["invitation"]
         ]);
-
 
     }
     /**

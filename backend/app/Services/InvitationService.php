@@ -3,6 +3,12 @@ namespace App\Services;
 use App\Models\TeamMember;
 
 class InvitationService{
+    protected TeamMembreService $teamMembreService;
+
+    public function __construct(TeamMembreService $teamMembreService)
+    {
+        $this->teamMembreService = $teamMembreService;
+    }
     public function acceptInvitationService($invitation){
         if ($invitation->status !== 'pending') {
             return [
@@ -15,17 +21,20 @@ class InvitationService{
                 "error"=>'This player is already a member of a team.'
             ];
         }
-        $teamMember = TeamMember::create([
-            'team_id' => $invitation->team_id,
-            'player_id' => $invitation->player_id,
-            'grade' => 'member',
-            'joined_at' => now(),
-        ]);
+        $result=$this->teamMembreService->CreateTeamMembreService([
+            "team_id"=>$invitation->team_id,
+            "grade"=>"membre"
+            ],$player);
+        if(isset($result["error"])){
+            return [
+                "error"=>$result["error"]
+            ];
+        }
         $invitation->update([
             'status' => 'accepted',
         ]);
         return [
-            "data"=>$teamMember
+            "data"=>$result["teamMember"]
         ];
     }
     public function rejectInvitationService($invitation){

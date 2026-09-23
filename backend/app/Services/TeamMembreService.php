@@ -8,15 +8,14 @@ class TeamMembreService{
     public function CreateTeamMembreService($data,$player){
             if (!$player) {
                   return [
-                    "message"=>"found",
+                    "error"=>"Player not found",
                   ];
             }
             if ($player->memberOfTeam) {
                 return [
-                    "message"=>"exist",
+                    "error"=>"You are already a member of a team",
                 ];
             }
-
             $membre = TeamMember::create([
                 "team_id" =>$data["team_id"],
                 "player_id" => $player->id,

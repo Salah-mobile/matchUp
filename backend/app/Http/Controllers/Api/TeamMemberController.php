@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 class TeamMemberController extends Controller
 {
     use AuthorizesRequests;
-
     public function index()
     {
         $teamMembers = TeamMember::all();
@@ -23,10 +22,9 @@ class TeamMemberController extends Controller
             "team_id",
             $teamId
         )->get();
-
         return TeamMemberResource::collection($teamMembers);
     }
-    
+
     public function store(Request $request,TeamMembreService $teamMembreService)
     {
         $data=$request->validate([
@@ -39,14 +37,10 @@ class TeamMemberController extends Controller
                 );
         $player = $request->user()->player;
         $result=$teamMembreService->CreateTeamMembreService($data,$player);
-        if($result["message"]==="found"){
-            return response()->json([
-                       "message" => "Player not found"
+        if(isset($result["error"])){
+             return response()->json([
+                       "message" => $result["error"]
             ]);
-        }elseif($result["message"]==="exist"){
-            return response()->json([
-                        "message" => "You are already a member of a team"
-                    ]);
         }else{
             return response()->json([
                 "message" => "Add member with success",

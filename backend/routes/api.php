@@ -16,9 +16,7 @@ Route::controller(AuthController::class)->group(function () {
 });
 
 Route::middleware("auth:sanctum")->group(function () {
-
     Route::post("/logout", [AuthController::class, "logout"]);
-
     Route::apiResource("players", PlayerController::class);
     Route::apiResource("teams", TeamController::class);
     Route::delete("/quitTeam",[TeamController::class,"QuitTeam"]);
