@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\InvitationResource;
 use App\Models\Invitation;
 use App\Models\Player;
 use App\Models\TeamMember;
+use App\Services\InvitationService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
@@ -19,14 +21,14 @@ class InvitationController extends Controller
     {
         $invitations=Invitation::with(["team","player"])->get();
         return response()->json([
-            "data"=>$invitations
+            "data"=>InvitationResource::collection($invitations)
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-   public function store(Request $request)
+   public function store(Request $request,InvitationService $invitationService)
     {
         $validated = $request->validate([
             'team_id' => 'required|exists:teams,id',
@@ -141,7 +143,6 @@ class InvitationController extends Controller
             'data' => $invitation
         ]);
     }
-
     /**
      * Display the specified resource.
      */
@@ -149,7 +150,6 @@ class InvitationController extends Controller
     {
         //
     }
-
     /**
      * Update the specified resource in storage.
      */

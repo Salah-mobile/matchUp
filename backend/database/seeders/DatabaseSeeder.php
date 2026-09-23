@@ -8,6 +8,7 @@ use App\Models\Team;
 use App\Models\TeamMember;
 use App\Models\Place;
 use App\Models\FootballMatch;
+use App\Models\Invitation;
 use App\Models\MatchPlayer;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -26,7 +27,7 @@ class DatabaseSeeder extends Seeder
                 'email' => "player$i@gmail.com",
                 'password' => Hash::make('password123'),
             ]);
-            
+
             $player = Player::create([
                 'position' => 'Attacker',
                 'level' => 1,
@@ -209,6 +210,37 @@ class DatabaseSeeder extends Seeder
                 'team_id' => $team3->id,
             ]);
         }
+            Invitation::create([
+                'team_id' => $team1->id,
+                'player_id' => $users[15]->id,
+                'type' => 'team_invitation',
+                'status' => 'pending',
+                'send_at' => now(),
+            ]);
+
+            Invitation::create([
+                'team_id' => $team2->id,
+                'player_id' => $users[16]->id,
+                'type' => 'join_request',
+                'status' => 'pending',
+                'send_at' => now(),
+            ]);
+
+            Invitation::create([
+                'team_id' => $team3->id,
+                'player_id' => $users[17]->id,
+                'type' => 'team_invitation',
+                'status' => 'pending',
+                'send_at' => now(),
+            ]);
+
+            Invitation::create([
+                'team_id' => $team1->id,
+                'player_id' => $users[18]->id, // player19
+                'type' => 'join_request',
+                'status' => 'pending',
+                'send_at' => now(),
+            ]);
     }
 }
 

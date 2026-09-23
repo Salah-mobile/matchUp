@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers\Api;
-
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TeamMemberResource;
 use App\Models\TeamMember;
@@ -28,7 +26,7 @@ class TeamMemberController extends Controller
 
         return TeamMemberResource::collection($teamMembers);
     }
-
+    
     public function store(Request $request,TeamMembreService $teamMembreService)
     {
         $data=$request->validate([

@@ -16,10 +16,9 @@ class PlayerResource extends JsonResource
             'points' => $this->points,
             'trustworthy' => $this->trustworthy,
             'user_id' => $this->user_id,
-
             'team_id' => $this->memberOfteam?->team_id,
-
             'grade' => $this->memberOfteam?->grade,
+            "user"=>$this->user,
         ];
     }
 }

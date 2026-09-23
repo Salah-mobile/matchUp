@@ -32,6 +32,7 @@ Route::middleware("auth:sanctum")->group(function () {
         Route::post("/invitations/{invitation}/accept", "accept");
         Route::post("/invitations/{invitation}/reject", "reject");
     });
+    Route::get('/showByTeam',[TeamMemberController::class,"showByTeam"]);
 
     Route::get("/matchs/my-matches", [
         FootballMatchController::class,
