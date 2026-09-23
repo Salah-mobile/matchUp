@@ -15,6 +15,7 @@ class InvitationResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            "id"=>$this->id,
             "team_id"=>$this->team_id,
             "player_id"=>$this->player,
             "status"=>$this->status,

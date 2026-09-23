@@ -29,8 +29,8 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::controller(InvitationController::class)->group(function () {
         Route::get("/invitations", "index");
         Route::post("/invitations", "store");
-        Route::post("/invitations/{invitation}/accept", "accept");
-        Route::post("/invitations/{invitation}/reject", "reject");
+        Route::post("/invitations/{invitation_id}/accept", "accept");
+        Route::post("/invitations/{invitation_id}/reject", "reject");
     });
     Route::get('/showByTeam',[TeamMemberController::class,"showByTeam"]);
 

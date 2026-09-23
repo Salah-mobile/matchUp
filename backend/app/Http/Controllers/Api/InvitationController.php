@@ -106,25 +106,23 @@ class InvitationController extends Controller
         ]);
     }
 
-    
-    public function reject(Invitation $invitation)
+
+    public function reject($invitation_id,InvitationService $invitationService)
     {
+        $invitation=Invitation::findOrFail($invitation_id);
         $this->authorize('reject', $invitation);
-
-        if ($invitation->status !== 'pending') {
+        $result=$invitationService->rejectInvitationService($invitation);
+        if(isset($result['error'])){
             return response()->json([
-                'message' => 'This invitation is no longer pending.'
-            ], 422);
+                    'message' =>$result["error"]
+                ]);
         }
-
-        $invitation->update([
-            'status' => 'rejected',
-        ]);
-
         return response()->json([
             'message' => 'Invitation rejected successfully.',
-            'data' => $invitation
+            'data' => $result["invitation"]
         ]);
+
+
     }
     /**
      * Display the specified resource.

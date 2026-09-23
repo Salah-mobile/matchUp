@@ -9,7 +9,6 @@ class InvitationService{
                 "error"=>"This invitation is no longer pending."
             ];
         }
-
         $player = $invitation->player;
         if ($player->memberOfteam()->exists()) {
             return [
@@ -28,6 +27,20 @@ class InvitationService{
         return [
             "data"=>$teamMember
         ];
+    }
+    public function rejectInvitationService($invitation){
+        if ($invitation->status !== 'pending') {
+            return [
+                "error"=> 'This invitation is no longer pending.'
+            ];
+        }
+        $invitation->update([
+            'status' => 'rejected',
+        ]);
+
+       return [
+        "invitation"=>$invitation
+       ];
     }
 
 }
