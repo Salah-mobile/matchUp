@@ -22,13 +22,14 @@ function Invitation() {
           (it) => it.team_id == CurrentPlayer.team_id && it.type=="team_invitation"
         )
       );
-    console.log(invitations.filter(
+      console.log( invitations.filter(
           (it) => it.team_id == CurrentPlayer.team_id && it.type=="team_invitation"
         ));
-    
+      
+
       SetInvitationCurrentPlayer(
         invitations.filter(
-          (it) => it.player_id == CurrentPlayer.id
+          (it) => it.player_id == CurrentPlayer.id 
         )
       );
 
@@ -142,7 +143,7 @@ function Invitation() {
 
               <div className="space-y-4">
                 {InvitationCurrentTeam.map((it) => {
-                  if (it.status == "pending") {
+                  if (it.status == "pending" && it.type=="join_request") {
                     return (
                       <InvitaionCase
                         key={it.id}
@@ -154,7 +155,6 @@ function Invitation() {
                       />
                     );
                   }
-
                   return null;
                 })}
               </div>
@@ -176,7 +176,7 @@ function Invitation() {
                 ) : (
                   <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                     {PlayerWithNoTeam.map((it) => {
-                        const isPending=InvitationCurrentTeam.some((ict)=>ict.player.id==it.id);
+                        const isPending=InvitationCurrentTeam.some((ict)=>ict.player_id==it.id && (ict.status=="pending" || ict.status=="accepted"));
                       return (
                         <div
                           key={it.id}
@@ -227,7 +227,6 @@ function Invitation() {
                               </div>
                             </div>
                           </div>
-
                           <button
                             type="button"
                             onClick={() => invitationTeam(it.id)}
@@ -265,7 +264,7 @@ function Invitation() {
                   {
                     InvitationCurrentPlayer.filter(
                       (it) => it.status == "pending"
-                    ).length
+                    ).length                    
                   }{" "}
                   pending
                 </span>

@@ -72,9 +72,8 @@ function InvitaionCase({ type, player, team , send_at , accept , reject}) {
             {team.classment}
           </p>
         </div>
-
         <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
-          <p className="text-sm text-slate-500">Send at: {player.send_at}</p>
+          <p className="text-sm text-slate-500">Send at: {send_at}</p>
           <div className="flex gap-2">
             <button className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800"
               onClick={()=>reject()}
