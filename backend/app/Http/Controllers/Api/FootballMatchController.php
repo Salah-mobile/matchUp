@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FootballMatchResource;
 use App\Models\FootballMatch;
+use App\Models\Player;
 use App\Services\FootballMtachService ;
 use Illuminate\Http\Request;
 class FootballMatchController extends Controller
@@ -160,5 +161,23 @@ class FootballMatchController extends Controller
             'message' => 'Match finished successfully.',
             'match' => new FootballMatchResource($result["match"]),
         ]);
+    }
+    public function QuitMatch(Request $request , FootballMtachService $footballMatchService){
+        $data=$request->validate([
+            "match_id"=>"required|int",
+            "player_id"=>"required|int"
+        ]);
+        $match=FootballMatch::findOrFail($data["team_id"]);
+        $player=Player::findOrFail($data["player_id"]);
+        $result=$footballMatchService->QuitMatchService($match,$player);
+        if(isset($result["error"])){
+            return response()->json([
+                "message"=>$result["error"]
+            ]);
+        }else{
+             return response()->json([
+                "message"=>$result["message"]
+            ]);
+        }
     }
 }

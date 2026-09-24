@@ -181,6 +181,11 @@ class FootballMtachService
                 "error" => "Player not found"
             ];
         }
+        if($player->trustworthy==0){
+            return [
+                "error"=>"you can not joind the match if your trustworthy minus or equal 0"
+            ];
+        }
 
         $teamMember = $player->memberOfteam;
 
@@ -446,5 +451,22 @@ class FootballMtachService
         return [
             "match" => $match
         ];
+    }
+    public function QuitMatchService($match, $player){
+        if($match->status=="finish"){
+            return[
+                "error"=>"you can not quit a finish match"
+            ];
+        }else{
+           $matchMembre=MatchPlayer::where('match_id',"=",$match->id)->where("player_id","=",$player->id)->first();
+           $player->update([
+            "trustworthy"=>$player->trustrustworthy-20
+           ]);
+           $matchMembre->delete();
+           return [
+            "message"=>"delete the match membre with success"
+           ];
+        }
+
     }
 }

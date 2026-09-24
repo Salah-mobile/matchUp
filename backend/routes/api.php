@@ -51,6 +51,6 @@ Route::middleware("auth:sanctum")->group(function () {
         FootballMatchController::class,
         "finish"
     ]);
-
+    Route::delete("/quitMatch",[FootballMatchController::class,"QuitMatch"]);
     Route::apiResource("matchs", FootballMatchController::class);
 });
