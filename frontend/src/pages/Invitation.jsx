@@ -7,12 +7,10 @@ function Invitation() {
   const [CurrentPlayer,SetCurrentPlayer] = useState(
     JSON.parse(localStorage.getItem("player"))
   );
-
   const [Load, SetLoad] = useState(false);
   const [InvitationCurrentTeam, SetInvitationCurrentTeam] = useState([]);
   const [InvitationCurrentPlayer, SetInvitationCurrentPlayer] = useState([]);
   const [PlayerWithNoTeam, SetPlayerWithNoTeam] = useState([]);
-
   const LoadData = async () => {
     try {
       const response = await api.get("/invitations");

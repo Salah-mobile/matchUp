@@ -6,19 +6,16 @@ import api from "../services/api.js";
 function MatchDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
-
+    const [CurrentPlayer]=useState(JSON.parse(localStorage.getItem("player")))
     const [match, setMatch] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [message, setMessage] = useState("");
     const [result, setResult] = useState("");
-
     const loadMatch = async () => {
         try {
             setLoading(true);
-
             const response = await api.get(`/matchs/${id}`);
-
             setMatch(response.data.data);
         } catch (error) {
             console.log(error.response?.data || error);
@@ -35,6 +32,21 @@ function MatchDetails() {
     useEffect(() => {
         loadMatch();
     }, [id]);
+    
+        const quitMatch = async (playerId, matchId) => {
+            try {
+                const response = await api.delete("/quitMatch", {
+                    data: {
+                        player_id: playerId,
+                        match_id: matchId,
+                    },
+                });
+                console.log(response.data);
+                navigate(`/matches/${match.id}`)
+            } catch (error) {
+                console.log(error.response?.data);
+            }
+        };
 
     const finishMatch = async () => {
         setError("");
@@ -139,6 +151,19 @@ function MatchDetails() {
                         >
                             Back to Matches
                         </button>
+                        {
+                        match.status != "finished"
+                        ? 
+                        <button
+                            onClick={() =>quitMatch(CurrentPlayer.id,match.id)}
+                            className="rounded-lg bg-slate-800 px-5 py-3 font-semibold text-white transition hover:bg-slate-700"
+                        >
+                            Quit Match
+                        </button> 
+                        : 
+                        null
+                        }
+                        
 
                     </div>
 
