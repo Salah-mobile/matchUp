@@ -17,7 +17,7 @@ class InvitationResource extends JsonResource
         return [
             "id"=>$this->id,
             "team_id"=>$this->team_id,
-            "player_id"=>$this->player,
+            "player_id"=>$this->player->id,
             "status"=>$this->status,
             "type"=>$this->type,
             "player"=>new PlayerResource($this->player),
