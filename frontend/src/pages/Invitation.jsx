@@ -4,9 +4,10 @@ import api from "../services/api";
 import InvitaionCase from "../component/layout/invitationCase";
 
 function Invitation() {
-  const [CurrentPlayer] = useState(
+  const [CurrentPlayer,SetCurrentPlayer] = useState(
     JSON.parse(localStorage.getItem("player"))
   );
+
   const [Load, SetLoad] = useState(false);
   const [InvitationCurrentTeam, SetInvitationCurrentTeam] = useState([]);
   const [InvitationCurrentPlayer, SetInvitationCurrentPlayer] = useState([]);
@@ -16,20 +17,18 @@ function Invitation() {
     try {
       const response = await api.get("/invitations");
       const invitations = response.data.data;
-
+      const playerC=await api.get(`players/${CurrentPlayer.id}`)
+      localStorage.setItem("player",JSON.stringify(playerC.data.data))
+      SetCurrentPlayer(JSON.parse(localStorage.getItem("player")))
       SetInvitationCurrentTeam(
         invitations.filter(
-          (it) => it.team_id == CurrentPlayer.team_id && it.type=="team_invitation"
+          (it) => it.team_id == CurrentPlayer.team_id
         )
       );
-      console.log( invitations.filter(
-          (it) => it.team_id == CurrentPlayer.team_id && it.type=="team_invitation"
-        ));
-      
 
       SetInvitationCurrentPlayer(
         invitations.filter(
-          (it) => it.player_id == CurrentPlayer.id 
+          (it) => it.player_id == CurrentPlayer.id
         )
       );
 
@@ -134,7 +133,9 @@ function Invitation() {
                 <span className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-sm font-medium text-emerald-400">
                   {
                     InvitationCurrentTeam.filter(
-                      (it) => it.status == "pending"
+                      (it) =>
+                        it.status == "pending" &&
+                        it.type == "join_request"
                     ).length
                   }{" "}
                   pending
@@ -143,7 +144,10 @@ function Invitation() {
 
               <div className="space-y-4">
                 {InvitationCurrentTeam.map((it) => {
-                  if (it.status == "pending" && it.type=="join_request") {
+                  if (
+                    it.status == "pending" &&
+                    it.type == "join_request"
+                  ) {
                     return (
                       <InvitaionCase
                         key={it.id}
@@ -155,6 +159,7 @@ function Invitation() {
                       />
                     );
                   }
+
                   return null;
                 })}
               </div>
@@ -176,7 +181,14 @@ function Invitation() {
                 ) : (
                   <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                     {PlayerWithNoTeam.map((it) => {
-                        const isPending=InvitationCurrentTeam.some((ict)=>ict.player_id==it.id && (ict.status=="pending" || ict.status=="accepted"));
+                      const isPending = InvitationCurrentTeam.some(
+                        (ict) =>
+                          ict.player_id == it.id &&
+                          ict.type == "team_invitation" &&
+                          (ict.status == "pending" ||
+                            ict.status == "accepted")
+                      );
+
                       return (
                         <div
                           key={it.id}
@@ -227,6 +239,7 @@ function Invitation() {
                               </div>
                             </div>
                           </div>
+
                           <button
                             type="button"
                             onClick={() => invitationTeam(it.id)}
@@ -237,9 +250,9 @@ function Invitation() {
                                 : "bg-emerald-500 text-slate-950 hover:bg-emerald-400"
                             }`}
                           >
-                             {isPending
-                               ? "Invitation pending"
-                               : "Send invitation"}
+                            {isPending
+                              ? "Invitation pending"
+                              : "Send invitation"}
                           </button>
                         </div>
                       );
@@ -249,6 +262,7 @@ function Invitation() {
               </div>
             </section>
           ) : null}
+
           {CurrentPlayer.team_id == null ? (
             <section>
               <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
@@ -260,15 +274,17 @@ function Invitation() {
                     Here you will find all your invitations sent by teams.
                   </p>
                 </div>
+
                 <span className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-sm font-medium text-emerald-400">
                   {
                     InvitationCurrentPlayer.filter(
                       (it) => it.status == "pending"
-                    ).length                    
+                    ).length
                   }{" "}
                   pending
                 </span>
               </div>
+
               <div className="space-y-4">
                 {InvitationCurrentPlayer.map((it) => {
                   if (it.status == "pending") {
@@ -283,6 +299,7 @@ function Invitation() {
                       />
                     );
                   }
+
                   return null;
                 })}
               </div>
@@ -293,4 +310,5 @@ function Invitation() {
     </div>
   );
 }
+
 export default Invitation;
