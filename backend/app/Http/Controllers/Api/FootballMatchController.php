@@ -74,7 +74,7 @@ class FootballMatchController extends Controller
         $match = FootballMatch::findOrFail($id);
         $player = $request->user()->player;
         $result=$footballMatchService->joinPlayerFootballMatchService($match,$player);
-        if(isset($result)){
+        if(isset($result["error"])){
             return response()->json([
                     'message' => $result["error"]
                 ]);
@@ -167,7 +167,7 @@ class FootballMatchController extends Controller
             "match_id"=>"required|int",
             "player_id"=>"required|int"
         ]);
-        $match=FootballMatch::findOrFail($data["team_id"]);
+        $match=FootballMatch::findOrFail($data["match_id"]);
         $player=Player::findOrFail($data["player_id"]);
         $result=$footballMatchService->QuitMatchService($match,$player);
         if(isset($result["error"])){
