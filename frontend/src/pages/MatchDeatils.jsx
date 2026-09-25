@@ -32,7 +32,6 @@ function MatchDetails() {
     useEffect(() => {
         loadMatch();
     }, [id]);
-    
         const quitMatch = async (playerId, matchId) => {
             try {
                 const response = await api.delete("/quitMatch", {
@@ -42,7 +41,7 @@ function MatchDetails() {
                     },
                 });
                 console.log(response.data);
-                navigate(`/matches/${match.id}`)
+                loadMatch()
             } catch (error) {
                 console.log(error.response?.data);
             }
@@ -152,7 +151,7 @@ function MatchDetails() {
                             Back to Matches
                         </button>
                         {
-                        match.status != "finished"
+                        match.status != "finished" && (team1Players.some((it)=>it.player_id==CurrentPlayer.id) || team2Players.some((it)=>it.player_id==CurrentPlayer.id))
                         ? 
                         <button
                             onClick={() =>quitMatch(CurrentPlayer.id,match.id)}
@@ -163,10 +162,8 @@ function MatchDetails() {
                         : 
                         null
                         }
-                        
-
                     </div>
-
+                    
                     {message && (
                         <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-emerald-400">
                             {message}
