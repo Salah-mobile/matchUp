@@ -184,10 +184,6 @@ function MyMatchs() {
 
                                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10">
 
-                                    <span className="text-2xl">
-                                        ⚽
-                                    </span>
-
                                 </div>
 
                                 <h3 className="text-lg font-bold text-white">
@@ -250,11 +246,11 @@ function MyMatchs() {
                                                     <div className="mt-3 flex flex-wrap gap-4 text-sm text-slate-500">
 
                                                         <span>
-                                                            🕐 {match.time}
+                                                             {match.time}
                                                         </span>
 
                                                         <span>
-                                                            📍 {match.place?.name || "-"}
+                                                             {match.place?.name || "-"}
                                                         </span>
 
                                                         <span>
@@ -317,7 +313,6 @@ function MyMatchs() {
                         )}
 
                     </div>
-
                 </section>
 
             </main>

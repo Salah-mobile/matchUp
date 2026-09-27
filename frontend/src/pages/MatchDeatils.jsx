@@ -12,11 +12,14 @@ function MatchDetails() {
     const [error, setError] = useState("");
     const [message, setMessage] = useState("");
     const [result, setResult] = useState("");
+    const [MatchDate,setMatchDate]=useState();
     const loadMatch = async () => {
         try {
             setLoading(true);
             const response = await api.get(`/matchs/${id}`);
             setMatch(response.data.data);
+            console.log(response.data.data)
+            setMatchDate(new Date(`${response.data.data.day}T${response.data.data.time}`));
         } catch (error) {
             console.log(error.response?.data || error);
 
@@ -125,7 +128,9 @@ function MatchDetails() {
 
     return (
         <div className="flex min-h-screen bg-slate-950">
-
+            {
+                MatchDate<MatchDate.addhoure
+            }
             <SideBar />
 
             <main className="min-w-0 flex-1 p-6">
