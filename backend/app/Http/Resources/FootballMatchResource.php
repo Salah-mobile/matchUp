@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Resources;
+
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Carbon\Carbon;
@@ -9,7 +11,6 @@ class FootballMatchResource extends JsonResource
     public function toArray(Request $request): array
     {
         $player = $request->user()?->player;
-
         $playerId = $player?->id;
 
         $myParticipation = null;
@@ -20,13 +21,11 @@ class FootballMatchResource extends JsonResource
         }
 
         $myCurrentTeamId = $player?->memberOfteam?->team_id;
-
         $isCaptain = $player?->memberOfteam?->grade === 'captain';
 
         $canFinish = false;
 
         if ($player && $player->memberOfteam) {
-
             $teamMember = $player->memberOfteam;
 
             if (
@@ -37,24 +36,19 @@ class FootballMatchResource extends JsonResource
                 ) &&
                 $this->status === 'full'
             ) {
-
                 $matchDateTime = Carbon::parse(
                     $this->day . ' ' . $this->time
                 );
 
-                $canFinish = now()->gte(
-                    $matchDateTime->copy()->addHour()
-                );
+                $finishTime = $matchDateTime->addHour();
+                $canFinish = now() >= $finishTime;
             }
         }
 
         return [
             'id' => $this->id,
-
             'day' => $this->day,
-
             'time' => $this->time,
-
             'status' => $this->status,
 
             'place' => $this->place ? [
@@ -83,9 +77,7 @@ class FootballMatchResource extends JsonResource
             'players' => $this->players->map(function ($matchPlayer) {
                 return [
                     'id' => $matchPlayer->id,
-
                     'player_id' => $matchPlayer->player_id,
-
                     'team_id' => $matchPlayer->team_id,
 
                     'player' => $matchPlayer->player ? [
@@ -97,17 +89,11 @@ class FootballMatchResource extends JsonResource
             }),
 
             'my_team_id' => $myParticipation?->team_id,
-
             'my_current_team_id' => $myCurrentTeamId,
-
             'is_joined' => $myParticipation ? true : false,
-
             'is_captain' => $isCaptain,
-
             'can_finish' => $canFinish,
-
             'created_at' => $this->created_at,
         ];
     }
 }
-

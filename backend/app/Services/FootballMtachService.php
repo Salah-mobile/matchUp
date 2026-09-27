@@ -181,9 +181,10 @@ class FootballMtachService
                 "error" => "Player not found"
             ];
         }
-        if($player->trustworthy==0){
+
+        if ($player->trustworthy <= 0) {
             return [
-                "error"=>"you can not joind the match if your trustworthy minus or equal 0"
+                "error" => "You cannot join the match if your trustworthy is zero or less."
             ];
         }
 
@@ -206,12 +207,9 @@ class FootballMtachService
             ];
         }
 
-        $alreadyJoined = MatchPlayer::where(
-            'match_id',
-            $match->id
-        )
-        ->where('player_id', $player->id)
-        ->exists();
+        $alreadyJoined = MatchPlayer::where('match_id', $match->id)
+            ->where('player_id', $player->id)
+            ->exists();
 
         if ($alreadyJoined) {
             return [
@@ -219,12 +217,9 @@ class FootballMtachService
             ];
         }
 
-        $teamPlayersCount = MatchPlayer::where(
-            'match_id',
-            $match->id
-        )
-        ->where('team_id', $teamId)
-        ->count();
+        $teamPlayersCount = MatchPlayer::where('match_id', $match->id)
+            ->where('team_id', $teamId)
+            ->count();
 
         if ($teamPlayersCount >= 5) {
             return [
@@ -232,10 +227,7 @@ class FootballMtachService
             ];
         }
 
-        $totalPlayers = MatchPlayer::where(
-            'match_id',
-            $match->id
-        )->count();
+        $totalPlayers = MatchPlayer::where('match_id', $match->id)->count();
 
         if ($totalPlayers >= 10) {
             return [
@@ -248,34 +240,12 @@ class FootballMtachService
             'player_id' => $player->id,
             'team_id' => $teamId,
         ]);
-
-        $team1Players = MatchPlayer::where(
-            'match_id',
-            $match->id
-        )
-        ->where('team_id', $match->team1)
-        ->count();
-
-        $team2Players = 0;
-
-        if ($match->team2) {
-            $team2Players = MatchPlayer::where(
-                'match_id',
-                $match->id
-            )
-            ->where('team_id', $match->team2)
-            ->count();
-        }
-
-        if (
-            $team1Players == 5 &&
-            $team2Players == 5
-        ) {
+        $playersCount = MatchPlayer::where('match_id', $match->id)->count();
+        if ($playersCount >= 10) {
             $match->update([
                 'status' => 'full'
             ]);
         }
-
         return [
             "match" => $match
         ];
@@ -433,7 +403,6 @@ class FootballMtachService
             ];
         }
         if ($result["result"] === "draw") {
-
             $winner = null;
         } elseif ($result["result"] === "win") {
             $winner = $teamMember->team_id;
@@ -452,21 +421,37 @@ class FootballMtachService
             "match" => $match
         ];
     }
-    public function QuitMatchService($match, $player){
-        if($match->status=="finish"){
-            return[
-                "error"=>"you can not quit a finish match"
+    public function QuitMatchService($match, $player)
+    {
+        if ($match->status === 'finished') {
+            return [
+                "error" => "You cannot quit a finished match."
             ];
-        }else{
-           $matchMembre=MatchPlayer::where('match_id',"=",$match->id)->where("player_id","=",$player->id)->first();
-           $player->update([
-            "trustworthy"=>$player->trustrustworthy-20
-           ]);
-           $matchMembre->delete();
-           return [
-            "message"=>"delete the match membre with success"
-           ];
         }
 
+        $matchMember = MatchPlayer::where('match_id', $match->id)
+            ->where('player_id', $player->id)
+            ->first();
+
+        if (!$matchMember) {
+            return [
+                "error" => "You are not part of this match."
+            ];
+        }
+
+        $player->update([
+            'trustworthy' => $player->trustworthy - 20
+        ]);
+        $matchMember->delete();
+
+        $playersCount = MatchPlayer::where('match_id', $match->id)->count();
+        if ($match->status === 'full' && $playersCount < 10) {
+            $match->update([
+                'status' => 'open'
+            ]);
+        }
+        return [
+            "message" => "You quit the match successfully."
+        ];
     }
 }
