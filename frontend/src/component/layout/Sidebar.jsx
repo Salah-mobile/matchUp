@@ -4,20 +4,15 @@ import api from "../../services/api";
 
 function SideBar() {
     const navigate = useNavigate();
-
     const Player = JSON.parse(localStorage.getItem("player"));
     const user = JSON.parse(localStorage.getItem("user"));
-
     const [logoutError, setLogoutError] = useState("");
     const [loggingOut, setLoggingOut] = useState(false);
-
     const handleLogout = async () => {
         setLogoutError("");
         setLoggingOut(true);
-
         try {
             await api.post("/logout");
-
             localStorage.removeItem("token");
             localStorage.removeItem("user");
             localStorage.removeItem("player");
@@ -31,7 +26,6 @@ function SideBar() {
             setLoggingOut(false);
         }
     };
-
     return (
         <aside className="hidden w-64 flex-col border-r border-slate-800 bg-slate-900 md:flex">
             <div className="border-b border-slate-800 px-6 py-6">
@@ -137,7 +131,6 @@ function SideBar() {
                         {logoutError}
                     </p>
                 )}
-
                 <button
                     type="button"
                     onClick={handleLogout}

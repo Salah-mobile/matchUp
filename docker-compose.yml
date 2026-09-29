@@ -1,0 +1,72 @@
+services:
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    container_name: matchup-backend
+
+    ports:
+      - "8000:8000"
+
+    volumes:
+      - ./backend:/var/www
+
+    depends_on:
+      - db
+
+    networks:
+      - matchup-network
+
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+
+    container_name: matchup-frontend
+
+    ports:
+      - "5173:5173"
+
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+    depends_on:
+      - backend
+
+    networks:
+      - matchup-network
+
+
+  db:
+    image: mariadb:10.11
+
+    container_name: matchup-db
+
+    restart: unless-stopped
+
+    environment:
+      MARIADB_DATABASE: matchup
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_USER: matchup
+      MARIADB_PASSWORD: matchup123
+
+    ports:
+      - "3307:3306"
+
+    volumes:
+      - matchup-db-data:/var/lib/mysql
+
+    networks:
+      - matchup-network
+
+
+networks:
+  matchup-network:
+
+
+volumes:
+  matchup-db-data:
